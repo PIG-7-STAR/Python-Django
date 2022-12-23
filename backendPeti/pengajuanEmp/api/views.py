@@ -40,13 +40,6 @@ class PengajuanAPIView(APIView):
             querySet=querySet.filter(start_date=start_date)
         if permission_type:
             querySet=querySet.filter(permission_type=permission_type)
-        # if start_date and end_date :
-        #     date_format='%d-%m-%Y'
-        #     start_date=datetime.strptime(start_date, date_format)
-        #     end_date=datetime.strptime(end_date, date_format)
-        #     start_date=end_date+timedelta(days=1)
-
-        #     querySet=querySet.filter(employee_name=employee_name)
 
         serializer = PetitionsSerializer(querySet, many=True)
 

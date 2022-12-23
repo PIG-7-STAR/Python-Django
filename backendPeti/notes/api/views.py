@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
-from .serializer import NotesSerializer
-from notes.models import NotesHrd
+from .serializer import NotesSerializer, EmployeeCutiSerializer
+from notes.models import NotesHrd, EmployeeCuti
+from userapp.models import User
 
 class NotesAPIView(APIView):
     serializer_class = NotesSerializer
@@ -99,5 +100,70 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         response_message={"message" : "Notes has been deleted"}
         # else:
             # response_message={"message" : "Not Allowed"}
+
+        return Response(response_message)
+
+class NotesEmployeeCuti(viewsets.ModelViewSet):
+    serializer_class = EmployeeCutiSerializer
+
+    def get_queryset(self):
+        notes = EmployeeCuti.objects.all()
+        return notes
+
+    def get(self, request, *args, **kwargs):
+        querySet = EmployeeCuti.objects.all()
+        
+        employee_name = self.request.query_params.get('employee_name', None)
+        jatah_cuti = self.request.query_params.get('jatah_cuti', None)
+        tanggal_cuti = self.request.query_params.get('tanggal_cuti', None)
+        sisa_cuti = self.request.query_params.get('sisa_cuti', None)
+
+        if employee_name:
+            querySet=querySet.filter(employee_name=employee_name)
+        if sisa_cuti:
+            querySet=querySet.filter(sisa_cuti=sisa_cuti)
+        if tanggal_cuti:
+            querySet=querySet.filter(tanggal_cuti=tanggal_cuti)
+        if jatah_cuti:
+            querySet=querySet.filter(jatah_cuti=jatah_cuti)
+    
+        serializer = EmployeeCutiSerializer(querySet, many=True)
+
+        return Response(serializer.data)
+        
+    def post(self, request, *args, **kwargs):
+        notes_data = request.data
+        new_notes = EmployeeCuti.objects.create(employee_name=User.objects.get(id=notes_data['employee_name']), jatah_cuti=notes_data['jatah_cuti'], 
+                        sisa_cuti=notes_data['sisa_cuti'], tanggal_cuti=notes_data['tanggal_cuti'], 
+                        start_date=notes_data['start_date'], end_date=notes_data['end_date'])
+        new_notes.save()
+        serializer = EmployeeCutiSerializer(new_notes)
+        return Response(serializer.data)
+    
+    # def put(self, request, *args, **kwargs):
+    #     notes_object = EmployeeCuti.objects.get()
+    #     data = request.data
+
+    #     notes_object.employee_name = User.objects.get(id=data['employee_name'])
+    #     notes_object.jatah_cuti = data['jatah_cuti']
+    #     notes_object.sisa_cuti = data['sisa_cuti']
+    #     notes_object.tanggal_cuti = data['tanggal_cuti']
+    #     notes_object.start_date = data['start_date']
+    #     notes_object.end_date = data['end_date']
+    #     notes_object.catatan = data['catatan']
+
+    #     notes_object.save()
+
+    #     serializer = EmployeeCutiSerializer(notes_object)
+    #     return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        logedin_user = request.user
+        if(logedin_user == "hrd"):
+            pengajuan = self.get_object()
+            pengajuan.delete()
+            response_message={"message" : "Data has been deleted"}
+        else:
+            response_message={"message" : "Not Allowed"}
 
         return Response(response_message)
