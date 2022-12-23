@@ -6,6 +6,9 @@ services:
       - "80:80"
     depends_on:
       - web
+    networks:
+    - django_network
+
   web:
     build: .
     command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn backendPeti.wsgi -b 0.0.0.0:8000"
@@ -16,17 +19,28 @@ services:
       - DJANGO_SETTINGS_MODULE=backendPeti.settings_prod
     depends_on:
       - db
+    networks:
+      - django_network
+      - db_network
 
   db:
     image: postgres:15.1-alpine
     environment:
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - '5432:5432'
+      - '54320:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - db_network
+
+networks:
+  django_network:
+    driver: bridge
+  db_network:
+    driver: bridge
 
 volumes:
   pgdata:

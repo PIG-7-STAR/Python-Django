@@ -1,7 +1,5 @@
+import os
 from .settings import *
-from dotenv import load_dotenv
-
-load_dotenv()
 
 DEBUG = False
 
@@ -17,5 +15,5 @@ DATABASES = {
         'USER': os.getenv("DB_USER"),
         'PASSWORD': os.getenv("DB_PASSWORD"),
         'PORT': os.getenv("DB_PORT"),
-    },
+    }
 }
