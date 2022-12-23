@@ -3,3 +3,6 @@ gunicorn==19.6.0
 djangorestframework==3.11.2
 psycopg2
 psycopg2-binary
+django-rest-auth
+django-cors-headers
+django-allauth
