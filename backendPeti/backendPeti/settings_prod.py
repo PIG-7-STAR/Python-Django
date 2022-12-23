@@ -3,9 +3,8 @@ from .settings import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['https://admin-staging.lolab.id',
+ALLOWED_HOSTS = ['*','https://admin-staging.lolab.id',
                  'localhost', '10.101.213.97', 'frontend']
-
 
 DATABASES = {
     'default': {

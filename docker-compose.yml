@@ -6,8 +6,6 @@ services:
       - "80:80"
     depends_on:
       - web
-    networks:
-    - django_network
 
   web:
     build: .
@@ -19,28 +17,17 @@ services:
       - DJANGO_SETTINGS_MODULE=backendPeti.settings_prod
     depends_on:
       - db
-    networks:
-      - django_network
-      - db_network
 
   db:
-    image: postgres:15.1-alpine
+    image: postgres:14-alpine
     environment:
-      - POSTGRES=${DB_NAME}
+      - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - '54320:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks:
-      - db_network
-
-networks:
-  django_network:
-    driver: bridge
-  db_network:
-    driver: bridge
 
 volumes:
   pgdata:
