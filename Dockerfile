@@ -1,7 +1,8 @@
 FROM python:3.6
 ENV PYTHONUNBUFFERED 1
-RUN mkdir /config
-ADD /config/requirements.pip /config/
-RUN pip install -r /config/requirements.pip
+RUN apt-get update && apt-get install -y libaio1
 RUN mkdir /backendPeti;
+COPY requirements.txt /backendPeti
+RUN pip install -r requirements.txt
 WORKDIR /backendPeti
+COPY ./backendPeti /backendPeti
