@@ -17,7 +17,7 @@ services:
       - db
 
   db:
-    image: postgres:14-alphine
+    image: '15.1-alpine'
     environment:
       - POSTGRES=form_db
       - POSTGRES_USER=dimas
