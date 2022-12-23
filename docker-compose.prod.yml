@@ -13,7 +13,7 @@ services:
       - ./backendPeti:/backendPeti
       - ./.env:/backendPeti/backendPeti/.env
     environment:
-      - DJANGO_SETTINGS_MODULE=backendPeti.settings.prod
+      - DJANGO_SETTINGS_MODULE=backendPeti.settings_prod
     depends_on:
       - db
 
