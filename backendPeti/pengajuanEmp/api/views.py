@@ -9,7 +9,7 @@ class PengajuanAPIView(APIView):
     serializer_class = PetitionsSerializer
 
     def get_queryset(self):
-        petitions = Petitions.objects.all()
+        petitions = Petitions.objects.all().order_by('-id')
         return petitions
     
     # def get(self, request, *args, **kwargs):
@@ -25,7 +25,7 @@ class PengajuanAPIView(APIView):
     #     return Response(serializer.data)
     
     def get(self, request, *args, **kwargs):
-        querySet = Petitions.objects.all()
+        querySet = Petitions.objects.all().order_by('-id')
         
         employee_name = self.request.query_params.get('employee_name', None)
         permission_type = self.request.query_params.get('permission_type', None)
@@ -59,7 +59,7 @@ class PengajuanAPIViewID(viewsets.ModelViewSet):
     serializer_class = PetitionsSerializer
 
     def get_queryset(self):
-        petitions = Petitions.objects.all()
+        petitions = Petitions.objects.all().order_by('-id')
         return petitions
     
     def get_ids(self, request, *args, **kwargs):
