@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'userapp',
     'pengajuanEmp',
     'notes',
-    'loginUser'
+    'loginUser',
+    'saldoCuti'
 ]
 
 SITE_ID = 1
@@ -93,9 +94,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backendPeti.wsgi.application'
 
 CORS_ORIGIN_WHITELIST = [
-    "http://hrd.localhost:3000",
-    "http://admin.localhost:3000",
-    "http://app.localhost:3000",
+    # "http://hrd.localhost:3000",
+    # "http://admin.localhost:3000",
+    # "http://app.localhost:3000",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://eirene.netlify.app",

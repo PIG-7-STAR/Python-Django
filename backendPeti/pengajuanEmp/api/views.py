@@ -47,8 +47,8 @@ class PengajuanAPIView(APIView):
     
     def post(self, request, *args, **kwargs):
         pengajuan_data = request.data
-        new_pengajuan = Petitions.objects.create(employee_name=pengajuan_data['employee_name'], division=pengajuan_data['division'], 
-                        permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'], 
+        new_pengajuan = Petitions.objects.create(employee_name=pengajuan_data['employee_name'], employee_id=pengajuan_data['employee_id'], division=pengajuan_data['division'], 
+                        permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'],  jumlah_hari=pengajuan_data['jumlah_hari'], 
                         start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'])
         new_pengajuan.save()
         serializer = PetitionsSerializer(new_pengajuan)
@@ -85,20 +85,31 @@ class PengajuanAPIViewID(viewsets.ModelViewSet):
     
     def post(self, request, *args, **kwargs):
         pengajuan_data = request.data
-        new_pengajuan = Petitions.objects.create(employee_name=pengajuan_data['employee_name'], division=pengajuan_data['division'], 
-                        permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'], 
+        new_pengajuan = Petitions.objects.create(employee_name=pengajuan_data['employee_name'], employee_id=pengajuan_data['employee_id'], division=pengajuan_data['division'], 
+                        permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'], jumlah_hari=pengajuan_data['jumlah_hari'], 
                         start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'])
         new_pengajuan.save()
         serializer = PetitionsSerializer(new_pengajuan)
         return Response(serializer.data)
     
-    def destroy(self, request, *args, **kwargs):
-        logedin_user = request.user
-        if(logedin_user == "admin"):
-            pengajuan = self.get_object()
-            pengajuan.delete()
-            response_message={"message" : "Petition has been deleted"}
-        else:
-            response_message={"message" : "Not Allowed"}
+    # def put(self, request, *args, **kwargs):
+    #     pengajuan_data = request.data
+    #     new_pengajuan = Petitions.objects.update( permission_pil= pengajuan_data['permission_pil'], jumlah_hari=pengajuan_data['jumlah_hari'], 
+    #                     start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'])
+    #     new_pengajuan.update()
+    #     serializer = PetitionsSerializer(new_pengajuan)
+    #     return Response(serializer.data)
+    
+    # def destroy(self, request, delete_id, *args, **kwargs):
+    #     # logedin_user = request.user
+    #     response_message={"message" : "Petition has been deleted"}
+    #     peng_data = request.data
+    #     petti = Petitions.objects.filter(id=delete_id)
+    #     petti.delete()
+    #     # if(logedin_user == "admin"):
+    #     #     pengajuan = self.get_object()
+    #     #     pengajuan.delete()
+    #     # else:
+    #     #     response_message={"message" : "Not Allowed"}
 
-        return Response(response_message)
+    #     return Response(response_message)

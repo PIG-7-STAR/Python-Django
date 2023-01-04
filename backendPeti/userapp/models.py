@@ -36,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         is_superuser = models.BooleanField(default=False)
         date_joined = models.DateTimeField(default=timezone.now)
         receive_newsletter = models.BooleanField(default=False)
+        sisa_cuti = models.CharField(max_length=20, blank=True, null=True)
         birth_date = models.DateTimeField(blank=True, null=True)
         address = models.CharField(max_length=300, blank=True, null=True)
         roles = models.CharField(max_length=30, blank=True, null=True)
