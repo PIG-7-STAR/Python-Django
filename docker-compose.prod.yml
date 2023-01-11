@@ -9,10 +9,12 @@ services:
 
   web:
     build: .
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn backendPeti.wsgi -b 0.0.0.0:8000"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn backendPeti.wsgi -b 0.0.0.0:8000"
     volumes:
       - ./backendPeti:/backendPeti
       - ./.env:/backendPeti/backendPeti/.env
+      - static_volume:/app/static
+      - media_volume:/app/media
     environment:
       - DJANGO_SETTINGS_MODULE=backendPeti.settings_prod
     depends_on:
@@ -27,7 +29,9 @@ services:
     ports:
       - '54320:5432'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  pg_data:
+  static_volume:
+  media_volume:
