@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
-from .serializer import PetitionsSerializer
-from pengajuanEmp.models import Petitions
+from rest_framework import status
+from .serializer import PetitionsSerializer, PetitionsCalendarSerializer
+from pengajuanEmp.models import Petitions, PetitionsCalendar
 from datetime import datetime, timedelta
 
 class PengajuanAPIView(APIView):
@@ -11,18 +12,6 @@ class PengajuanAPIView(APIView):
     def get_queryset(self):
         petitions = Petitions.objects.all().order_by('-id')
         return petitions
-    
-    # def get(self, request, *args, **kwargs):
-    #     try: 
-    #         permission_type = request.query_params["permission_type"]
-    #         if permission_type != ' ':
-    #             petition  = Petitions.objects.get(permission_type=permission_type)
-    #             serializer = PetitionsSerializer(petition)
-    #     except:
-    #         petitions = self.get_queryset()
-    #         serializer = PetitionsSerializer(petitions, many=True)
-
-    #     return Response(serializer.data)
     
     def get(self, request, *args, **kwargs):
         querySet = Petitions.objects.all().order_by('-id')
@@ -47,12 +36,30 @@ class PengajuanAPIView(APIView):
     
     def post(self, request, *args, **kwargs):
         pengajuan_data = request.data
-        new_pengajuan = Petitions.objects.create(employee_name=pengajuan_data['employee_name'], employee_id=pengajuan_data['employee_id'], division=pengajuan_data['division'], 
+        start_dat = pengajuan_data.get("start_date")
+        edrd = pengajuan_data.get("end_date")
+        rdrd = pengajuan_data.get("return_date")
+        reason = pengajuan_data.get("reason")
+        divisi = pengajuan_data.get("division")
+        juml = pengajuan_data.get("jumlah_hari")
+
+        if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
+            if(reason != '' and divisi != '' and juml != ''):
+                new_pengajuan = Petitions.objects.create(employee_name=pengajuan_data['employee_name'], employee_id=pengajuan_data['employee_id'], division=pengajuan_data['division'], 
                         permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'],  jumlah_hari=pengajuan_data['jumlah_hari'], 
                         start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'])
-        new_pengajuan.save()
-        serializer = PetitionsSerializer(new_pengajuan)
-        return Response(serializer.data)
+                serializer = PetitionsSerializer(new_pengajuan)
+                response_message={"message" : "Berhasil Membuat Pengajuan",
+                                "data": serializer.data
+                }
+                new_pengajuan.save()
+                ressPon = Response(response_message)
+            else:
+                ressPon = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)  
+        else:
+            ressPon = Response({"message" : "Data tanggal akhir dan tanggal kembali masuk tidak boleh kurang dari tanggal awal"}, status=status.HTTP_400_BAD_REQUEST)  
+        
+        return ressPon
     
 
 class PengajuanAPIViewID(viewsets.ModelViewSet):
@@ -85,12 +92,26 @@ class PengajuanAPIViewID(viewsets.ModelViewSet):
     
     def post(self, request, *args, **kwargs):
         pengajuan_data = request.data
+        strd = pengajuan_data.get("start_date")
+        edrd = pengajuan_data.get("end_date")
+        rdrd = pengajuan_data.get("return_date")
         new_pengajuan = Petitions.objects.create(employee_name=pengajuan_data['employee_name'], employee_id=pengajuan_data['employee_id'], division=pengajuan_data['division'], 
                         permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'], jumlah_hari=pengajuan_data['jumlah_hari'], 
                         start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'])
-        new_pengajuan.save()
-        serializer = PetitionsSerializer(new_pengajuan)
-        return Response(serializer.data)
+        if(edrd >= strd & edrd >= rdrd ):
+            new_pengajuan.save()
+            serializer = PetitionsSerializer(new_pengajuan)
+            response_message={"message" : "Berhasil Mengajukan pengajuan"}
+        else:
+            response_message={"message" : "data tanggal akhir tidak boleh kurang dari tanggal awal"}
+
+        return Response(response_message)
+
+
+        # else:
+        #     new_pengajuan.save()
+        #     serializer = PetitionsSerializer(new_pengajuan)
+        #     return Response(serializer.data)
     
     # def put(self, request, *args, **kwargs):
     #     pengajuan_data = request.data
@@ -113,3 +134,48 @@ class PengajuanAPIViewID(viewsets.ModelViewSet):
     #     #     response_message={"message" : "Not Allowed"}
 
     #     return Response(response_message)
+
+class PengajuanCalendarAPI(viewsets.ModelViewSet):
+    serializer_class = PetitionsCalendarSerializer
+
+    def get_queryset(self):
+        petitions = PetitionsCalendar.objects.all().order_by('-id')
+        return petitions
+    
+    def get_ids(self, request, *args, **kwargs):
+        ids = request.query_params["id"]
+        if ids != None:
+                petitions = PetitionsCalendar.objects(id=ids)
+                serializer = PetitionsCalendarSerializer(petitions)
+        else:
+            pett = self.get_queryset()
+            serr = PetitionsCalendarSerializer(pett, many=True)
+        return Response(serializer.data)
+    
+    def get_name(self, request, *args, **kwargs):
+        ids = request.query_params["title"]
+        if ids != None:
+                petitions = PetitionsCalendar.objects(title=ids)
+                serializer = PetitionsCalendarSerializer(petitions)
+        else:
+            pett = self.get_queryset()
+            serr = PetitionsCalendarSerializer(pett, many=True)
+        return Response(serializer.data)
+
+    
+    def post(self, request, *args, **kwargs):
+        pengajuan_data = request.data
+        strd = pengajuan_data.get("start_date")
+        edrd = pengajuan_data.get("end_date")
+        rdrd = pengajuan_data.get("return_date")
+        new_pengajuan = PetitionsCalendar.objects.create(title=pengajuan_data['title'], employee_id=pengajuan_data['employee_id'], division=pengajuan_data['division'], 
+                        permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'], jumlah_hari=pengajuan_data['jumlah_hari'], 
+                        start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'])
+        if(edrd >= strd & edrd >= rdrd ):
+            new_pengajuan.save()
+            serializer = PetitionsCalendarSerializer(new_pengajuan)
+            response_message={"message" : "Berhasil Mengajukan pengajuan"}
+        else:
+            response_message={"message" : "data tanggal akhir tidak boleh kurang dari tanggal awal"}
+
+        return Response(response_message)

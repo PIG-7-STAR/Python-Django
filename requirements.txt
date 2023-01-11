@@ -7,3 +7,4 @@ django-rest-auth
 django-cors-headers
 django-allauth
 python-dotenv
+whitenoise

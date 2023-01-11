@@ -31,6 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         email = models.EmailField(max_length=250, unique=True)
         first_name = models.CharField(max_length=30, blank=True, null=True)
         last_name = models.CharField(max_length=30, blank=True, null=True)
+        name = models.CharField(max_length=255, blank=True, null=True)
         is_active = models.BooleanField(default=True)
         is_staff = models.BooleanField(default=False)
         is_superuser = models.BooleanField(default=False)
@@ -46,3 +47,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         USERNAME_FIELD = 'username'
         REQUIRED_FIELDS =  [ 'email', ]
+
+class UserRoles(models.Model):
+    roles = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return self.roles

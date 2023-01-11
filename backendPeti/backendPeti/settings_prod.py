@@ -3,8 +3,12 @@ from .settings import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*','https://admin-staging.lolab.id',
-                 'localhost', '10.101.213.97', 'frontend']
+# ALLOWED_HOSTS = ['*','https://admin-staging.lolab.id',
+#                  'localhost', '10.101.213.97', "https://eirene.netlify.app",
+#                     "https://form-perizinan.netlify.app",
+#                     "https://hrds.netlify.app"]
+
+ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     'default': {
