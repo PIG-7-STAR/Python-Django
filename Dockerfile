@@ -7,3 +7,4 @@ COPY requirements.txt /backendPeti
 RUN pip install -r backendPeti/requirements.txt
 WORKDIR /backendPeti
 COPY ./backendPeti /backendPeti
+RUN python manage.py collectstatic --noinput

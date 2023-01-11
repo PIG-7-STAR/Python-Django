@@ -9,6 +9,8 @@ class RegisterSerializer(serializers.Serializer):
     first_name = serializers.CharField(required=False, write_only=True)
     last_name = serializers.CharField(required=False, write_only=True)
     name = serializers.CharField(required=False, write_only=True)
+    sisa_cuti = serializers.CharField(required=False, write_only=True)
+    roles = serializers.CharField(required=False, write_only=True)
 
     password1 = serializers.CharField(required=False, write_only=True)
     password2 = serializers.CharField(required=False, write_only=True)
@@ -23,14 +25,16 @@ class RegisterSerializer(serializers.Serializer):
             )
         return data
     
-    # def custom_signup(self, request, user):
-    #     pass
+    def custom_signup(self, request, user):
+        pass
 
     def get_cleaned_data(self):
         return {
             'first_name' : self.validated_data.get('first_name', ''),
             'last_name' : self.validated_data.get('last_name', ''),
-            'name' : self.validated_data.get('first_name', '') + self.validated_data.get('last_name', ''),
+            'name' : self.validated_data.get('name', ''),
+            'sisa_cuti' : self.validated_data.get('sisa_cuti', ''),
+            'roles' : self.validated_data.get('roles', ''),
             'address' : self.validated_data.get('address', ''),
             'user_type' : self.validated_data.get('user_type', ''),
             'password1' : self.validated_data.get('password1', ''),

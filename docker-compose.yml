@@ -9,7 +9,7 @@ services:
 
   web:
     build: .
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn backendPeti.wsgi -b 0.0.0.0:8000"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py createsuperuser --username=dimas --email=dimas.indra773@gmail.com && gunicorn backendPeti.wsgi -b 0.0.0.0:8000"
     volumes:
       - ./backendPeti:/backendPeti
       - ./.env:/backendPeti/backendPeti/.env
@@ -20,12 +20,15 @@ services:
 
   db:
     image: postgres:14-alpine
+    restart: always
+    expose:
+      - "5432"
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - '54320:5432'
+      - '54321:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 
