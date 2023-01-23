@@ -2,8 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
-from userapp.serializer import UserDetailsSerializer, UserRolesSerializers
-from userapp.models import User, UserRoles
+from django.db.models import Count, Q
+from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers
+from userapp.models import User, UserRoles, UserDivision
+import json
+from django.http import HttpResponse
+from django.db.models import Sum
+from attendanceEmployee.models import AttendanceEmployee
 
 class UserApiView(APIView):
     serializer_class = UserDetailsSerializer
@@ -48,7 +53,7 @@ class UserViewId(viewsets.ModelViewSet):
         if(password1 == password2 ):
             user_regist = User.objects.create(username=users['username'], first_name=users['first_name'], 
                     last_name=users['last_name'], name=users['name'],  sisa_cuti=users['sisa_cuti'], 
-                    roles=users['roles'])
+                    roles=users['roles'], division=users['division'])
             serializer = UserDetailsSerializer(user_regist)
             response_message={"message" : "User Berhasil dibuat",
                             "data": serializer.data
@@ -66,3 +71,75 @@ class UserRole(viewsets.ModelViewSet):
     def get_queryset(self):
         notes = UserRoles.objects.all()
         return notes
+
+class UserDivisionView(viewsets.ModelViewSet):
+    serializer_class = UserDivisionSerializers
+
+    def get_queryset(self):
+        division = UserDivision.objects.all()
+        return division
+
+
+class UserTotal(APIView):
+    serializer_class = UserTotalDataIOSerializers
+
+    def get(self, request):
+        # total_karyawan = User.objects.values('is_active').annotate(count=Count('is_active')).order_by('pk')
+        userAct = User.objects.all()
+        total_karyawan_all = userAct.count()
+        total_karyawan = User.objects.aggregate(
+            active_employee=Count("is_active", filter=Q(is_active=True)),
+            inactive_employee=Count("is_active", filter=Q(is_active=False)),
+        )
+
+        case = AttendanceEmployee.objects.all().aggregate(Sum('working_hour'))
+
+        return Response({"Message" : "List Employee", 
+                         "employee" : total_karyawan,
+                         "total_employee" : total_karyawan_all,
+                         "total_work_hour_all" : case,
+                         })
+
+class UserSearch(APIView):
+    serializer_class = UserDetailsSerializer
+
+    def get_queryset(self):
+        users = User.objects.all().order_by('-id')
+        return users
+    
+    def get(self, request, *args, **kwargs):
+        querySet = User.objects.all().order_by('-id')
+        
+        name = self.request.query_params.get('name', None)
+        roles = self.request.query_params.get('roles', None)
+        division = self.request.query_params.get('division', None)
+
+        if name:
+            querySet=querySet.filter(name__contains=name)
+        if roles:
+            querySet=querySet.filter(roles__contains=roles)
+        if division:
+            querySet=querySet.filter(division__contains=division)
+
+        serializer = UserDetailsSerializer(querySet, many=True)
+
+        return Response(serializer.data) 
+
+class UserSearchView(APIView):
+    serializer_class = UserDetailsSerializer
+
+    def get_queryset(self):
+        users = User.objects.all().order_by('username')
+        return users
+    
+    def get(self, request, *args, **kwargs):
+        querySet = User.objects.all().order_by('username')
+        
+        name = self.request.query_params.get('name', None)
+
+        if name:
+            querySet=querySet.filter(name__contains=name)
+
+        serializer = UserDetailsSerializer(querySet, many=True)
+
+        return Response(serializer.data) 

@@ -32,18 +32,25 @@ class User(AbstractBaseUser, PermissionsMixin):
         first_name = models.CharField(max_length=30, blank=True, null=True)
         last_name = models.CharField(max_length=30, blank=True, null=True)
         name = models.CharField(max_length=255, blank=True, null=True)
-        is_active = models.BooleanField(default=True)
+        division = models.CharField(max_length=255, blank=True, null=True)
+        is_active = models.BooleanField(default=True) #karyawan aktif
         is_staff = models.BooleanField(default=False)
         is_superuser = models.BooleanField(default=False)
-        date_joined = models.DateTimeField(default=timezone.now)
+        employee_joined = models.DateField(null=True, blank=True)
+        date_joined = models.DateTimeField(default=timezone.now) #karyawan mulai bekerja
         receive_newsletter = models.BooleanField(default=False)
         sisa_cuti = models.CharField(max_length=20, blank=True, null=True)
-        birth_date = models.DateTimeField(blank=True, null=True)
+        birth_date = models.DateField(blank=True, null=True)
         address = models.CharField(max_length=300, blank=True, null=True)
         roles = models.CharField(max_length=30, blank=True, null=True)
-        city = models.CharField(max_length=30, blank=True, null=True)
-
+        gender = models.CharField(max_length=30, blank=True, null=True)
+        religion = models.CharField(max_length=30, blank=True, null=True)
+ 
         objects = UserManager()
+
+        def save(self, *args, **kwargs):
+            self.name = (self.first_name + ' ' + self.last_name)
+            super(User, self).save(*args, **kwargs)
 
         USERNAME_FIELD = 'username'
         REQUIRED_FIELDS =  [ 'email', ]
@@ -53,3 +60,9 @@ class UserRoles(models.Model):
 
     def __str__(self):
         return self.roles
+
+class UserDivision(models.Model):
+    division = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return self.division

@@ -24,10 +24,3 @@ class SaldoApiView(APIView):
         serializer = SaldoCutiSerializer(querySet, many=True)
 
         return Response(serializer.data) 
-    
-    def put(self, request, *args, **kwargs):
-        pengajuan_data = request.data
-        new_pengajuan = SaldoCuti.objects.create(saldo_cuti=pengajuan_data['saldo_cuti'], sisa_cuti=pengajuan_data['sisa_cuti'] )
-        new_pengajuan.save()
-        serializer = SaldoCutiSerializer(new_pengajuan)
-        return Response(serializer.data)

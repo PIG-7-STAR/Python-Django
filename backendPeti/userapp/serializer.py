@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from allauth.account.adapter import get_adapter
 from backendPeti import settings
-from .models import User, UserRoles
+from .models import User, UserRoles, UserDivision
 from allauth.account.utils import setup_user_email
 
 class RegisterSerializer(serializers.Serializer):
@@ -33,12 +33,16 @@ class RegisterSerializer(serializers.Serializer):
             'first_name' : self.validated_data.get('first_name', ''),
             'last_name' : self.validated_data.get('last_name', ''),
             'name' : self.validated_data.get('name', ''),
+            'division' : self.validated_data.get('division', ''),
             'sisa_cuti' : self.validated_data.get('sisa_cuti', ''),
             'roles' : self.validated_data.get('roles', ''),
             'address' : self.validated_data.get('address', ''),
             'user_type' : self.validated_data.get('user_type', ''),
             'password1' : self.validated_data.get('password1', ''),
             'email' : self.validated_data.get('email', ''),
+            'is_active' : self.validated_data.get('is_active', ''),
+            'gender' : self.validated_data.get('gender', ''),
+            'religion' : self.validated_data.get('religion', ''),
         }
     
     def save(self, request):
@@ -59,8 +63,8 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('pk', 'username', 'email', 'first_name', 'last_name', 'name',
-                    'sisa_cuti', 'roles')
+        fields = ('pk', 'username', 'email', 'first_name', 'last_name', 'name', 'division', 'is_active', 'employee_joined', 'birth_date',
+                    'sisa_cuti', 'roles', 'gender', 'religion')
         # read_only_fields = ('email', )
 
 class UserRolesSerializers(serializers.ModelSerializer):
@@ -68,4 +72,14 @@ class UserRolesSerializers(serializers.ModelSerializer):
         model = UserRoles
         fields = '__all__' 
         
+class UserTotalDataIOSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('pk', 'is_active')
+        # fields = '__all__' 
+
+class UserDivisionSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = UserDivision
+        fields = '__all__' 
         
