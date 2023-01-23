@@ -104,7 +104,8 @@ CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:3000",
     "https://eirene.netlify.app",
     "https://form-perizinan.netlify.app",
-    "https://hrds.netlify.app"
+    "https://hrds.netlify.app",
+    "https://sdm-app.netlify.app"
 
 ]
 
