@@ -10,13 +10,24 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': os.getenv("DB_NAME"),
+#         'HOST': os.getenv("DB_HOST"),
+#         'USER': os.getenv("DB_USER"),
+#         'PASSWORD': os.getenv("DB_PASSWORD"),
+#         'PORT': os.getenv("DB_PORT"),
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv("DB_NAME"),
-        'HOST': os.getenv("DB_HOST"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'PORT': os.getenv("DB_PORT"),
+        'NAME':"form_db",
+        'HOST': "db",
+        'USER': "dimas",
+        'PASSWORD': "p@ssw0rd",
+        'PORT': "5432",
     }
 }
