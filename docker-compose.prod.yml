@@ -13,8 +13,8 @@ services:
     volumes:
       - ./backendPeti:/backendPeti
       - ./.env:/backendPeti/backendPeti/.env
-      - static_volume:/app/static
-      - media_volume:/app/media
+      - static_volume:/backendPeti/static
+      - media_volume:/backendPeti/media
     environment:
       - DJANGO_SETTINGS_MODULE=backendPeti.settings_prod
     depends_on:
