@@ -5,8 +5,6 @@ from rest_framework import viewsets
 from django.db.models import Count, Q
 from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers
 from userapp.models import User, UserRoles, UserDivision
-import json
-from django.http import HttpResponse
 from django.db.models import Sum
 from attendanceEmployee.models import AttendanceEmployee
 

@@ -24,7 +24,7 @@ class UserManager(BaseUserManager):
                                 is_superuser=True, **extrafields)
         user.save(using=self._db)
 
-        return user    
+        return user     
 
 class User(AbstractBaseUser, PermissionsMixin):
         username= models.CharField(max_length=120, unique=True)
@@ -52,6 +52,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             if(self.first_name != None and self.last_name != None):
                 self.name = (self.first_name + ' ' + self.last_name)
                 super(User, self).save(*args, **kwargs)
+            else:
+                super(User, self).save(*args, **kwargs)
+            
 
         USERNAME_FIELD = 'username'
         REQUIRED_FIELDS =  [ 'email', ]
