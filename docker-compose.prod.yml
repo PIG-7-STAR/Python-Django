@@ -12,7 +12,7 @@ services:
     command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn backendPeti.wsgi -b 0.0.0.0:8000"
     volumes:
       - ./backendPeti:/backendPeti
-      - ./.env:/backendPeti/backendPeti/.env
+      - .env:/backendPeti/backendPeti/.env
       - static_volume:/backendPeti/static
       - media_volume:/backendPeti/media
     environment:
