@@ -40,7 +40,6 @@ class RegisterSerializer(serializers.Serializer):
             'user_type' : self.validated_data.get('user_type', ''),
             'password1' : self.validated_data.get('password1', ''),
             'email' : self.validated_data.get('email', ''),
-            'is_active' : self.validated_data.get('is_active', ''),
             'gender' : self.validated_data.get('gender', ''),
             'religion' : self.validated_data.get('religion', ''),
         }
@@ -63,7 +62,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('pk', 'username', 'email', 'first_name', 'last_name', 'name', 'division', 'is_active', 'employee_joined', 'birth_date',
+        fields = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_active','name', 'division', 'employee_joined', 'birth_date',
                     'sisa_cuti', 'roles', 'gender', 'religion')
         # read_only_fields = ('email', )
 
