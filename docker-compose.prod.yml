@@ -35,4 +35,3 @@ volumes:
   pg_data:
   static_volume:
   media_volume:
-  ./.env:
