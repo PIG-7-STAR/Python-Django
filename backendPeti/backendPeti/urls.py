@@ -2,13 +2,15 @@ from django.contrib import admin
 from django.urls import path, include
 from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare
-from userapp.api.views import UserSearch, UserSearchView
+from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('rest-auth/', include('rest_auth.urls')),
     path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    path('api/reset-password/', UserPasswordReset.as_view(), name='reset-password'),
+    path('api/reset-password/<str:encoded_pk>/<str:token>/',ResetPassword.as_view(), name='reset-password'),
     path('', include('loginUser.api.urls')),
     path('petitions/', include('pengajuanEmp.api.urls')),
     path('notes/', include('notes.api.urls')),

@@ -3,10 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.db.models import Count, Q
-from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers
+from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer
 from userapp.models import User, UserRoles, UserDivision
 from django.db.models import Sum
 from attendanceEmployee.models import AttendanceEmployee
+from rest_framework import generics
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode
+from django.urls import reverse
 
 class UserApiView(APIView):
     serializer_class = UserDetailsSerializer
@@ -141,3 +146,53 @@ class UserSearchView(APIView):
         serializer = UserDetailsSerializer(querySet, many=True)
 
         return Response(serializer.data) 
+
+
+class UserPasswordReset(generics.GenericAPIView):
+    serializer_class = EmailSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.data["email"]
+        user = User.objects.filter(email=email).first()
+        if user:
+            encode_pk = urlsafe_base64_encode(force_bytes(user.pk))
+            token = PasswordResetTokenGenerator().make_token(user)
+            
+            reset_url = reverse(
+                "reset-password",
+                kwargs={"encoded_pk":encode_pk, "token":token}
+            )
+
+            reset_url = reset_url
+
+            return Response(
+                {
+                    "Message": reset_url
+                },
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {
+                    "Message":
+                    "User Does not exist"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+class ResetPassword(generics.GenericAPIView):
+    serializer_class = ResetPasswordSerializer
+
+    def patch(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"kwargs":kwargs}
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        return Response(
+            {"Message" : "Password reset complete"},
+            status = status.HTTP_200_OK
+        )

@@ -3,6 +3,8 @@ from allauth.account.adapter import get_adapter
 from backendPeti import settings
 from .models import User, UserRoles, UserDivision
 from allauth.account.utils import setup_user_email
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_decode
 
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(required=settings.ACCOUNT_EMAIL_REQUIRED)
@@ -81,4 +83,37 @@ class UserDivisionSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserDivision
         fields = '__all__' 
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    class Meta:
+        # model = User
+        fields = ("email")
+
+class ResetPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        write_only=True,
+        min_length=4,
+    )
+    class Meta:
+        # model = User
+        fields = ("password")
+
+    def validate(self, data):
+        password = data.get("password")
+        token = self.context.get("kwargs").get("token")
+        encoded_pk = self.context.get("kwargs").get("encoded_pk")
+
+        if token is None or encoded_pk is None:
+            raise serializers.ValidationError("Missing Data")
         
+        pk = urlsafe_base64_decode(encoded_pk).decode()
+        user = User.objects.get(pk=pk)
+
+        if not PasswordResetTokenGenerator().check_token(user, token):
+            raise serializers.ValidationError("The reset token is invalid")
+
+        user.set_password(password)
+        user.save()
+        return data
