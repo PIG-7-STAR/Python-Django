@@ -1,7 +1,7 @@
 from django.db import models
 
 class AttendanceEmployee(models.Model):
-    employee_name = models.CharField( max_length=220, null=False, blank=False)
+    employee_name = models.CharField( max_length=220, null=True, blank=False)
     working_date = models.DateField( null=True, blank=True)
     start_from = models.IntegerField( null=True, blank=True)
     end_from = models.IntegerField( null=True, blank=True)
