@@ -53,7 +53,7 @@ class AttendanceAPISearch(APIView):
         years = self.request.query_params.get('years', None)
 
         if employee_name:
-            querySet=querySet.filter(employee_name=employee_name)
+            querySet=querySet.filter(employee_name__contains=employee_name)
         if years:
             querySet=querySet.filter(years=years)
         if months:
