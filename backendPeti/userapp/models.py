@@ -45,6 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         roles = models.CharField(max_length=30, blank=True, null=True)
         gender = models.CharField(max_length=30, blank=True, null=True)
         religion = models.CharField(max_length=30, blank=True, null=True)
+        employee_code = models.CharField(max_length=250, blank=True, null=True, default="EmpId")
  
         objects = UserManager()
 

@@ -141,7 +141,7 @@ class UserSearchView(APIView):
         name = self.request.query_params.get('name', None)
 
         if name:
-            querySet=querySet.filter(name__contains=name)
+            querySet=querySet.filter(name__icontains=name)
 
         serializer = UserDetailsSerializer(querySet, many=True)
 
