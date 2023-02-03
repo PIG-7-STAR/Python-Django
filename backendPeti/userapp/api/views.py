@@ -118,7 +118,7 @@ class UserSearch(APIView):
         division = self.request.query_params.get('division', None)
 
         if name:
-            querySet=querySet.filter(name__contains=name)
+            querySet=querySet.filter(name__icontains=name)
         if roles:
             querySet=querySet.filter(roles__contains=roles)
         if division:
