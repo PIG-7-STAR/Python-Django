@@ -26,7 +26,7 @@ class AttendanceEmployee(models.Model):
             slic = slice(taw,tle)
             dig = str(calc)
             finn = dig[slic]
-            if(finn > '59' and tle != 2):
+            if(finn > '59' or tle > 2):
                 ef = self.end_from-100+60
                 self.working_hour = (ef - self.start_from)
                 self.working_hour_detail = self.working_hour/100
@@ -46,7 +46,7 @@ class AttendanceEmployee(models.Model):
             slicesLembur = slice(tawLembur,tlembur)
             dig_lembur = str(calc_lembur)
             finn_lembur = dig_lembur[slicesLembur]
-            if(finn_lembur > '59'):
+            if(finn_lembur > '59' or tle > 2):
                 ef_lembur = self.lembur_end-100+60
                 self.lembur_hour = (ef_lembur - self.lembur_start)
             elif(tle == 2 and finn < '10'):
