@@ -30,7 +30,7 @@ class AttendanceEmployee(models.Model):
                 ef = self.end_from-100+60
                 self.working_hour = (ef - self.start_from)
                 self.working_hour_detail = self.working_hour/100
-            elif(tle == 2 and finn < '10'):
+            elif(tle == 2 ):
                 self.working_hour = calc-40
                 self.working_hour_detail = self.working_hour/100
             else:
@@ -49,7 +49,7 @@ class AttendanceEmployee(models.Model):
             if(finn_lembur > '59' or tle > 2):
                 ef_lembur = self.lembur_end-100+60
                 self.lembur_hour = (ef_lembur - self.lembur_start)
-            elif(tle == 2 and finn < '10'):
+            elif(tle == 2 ):
                 self.lembur_hour = (self.lembur_start)
             else:
                 self.lembur_hour = calc_lembur
