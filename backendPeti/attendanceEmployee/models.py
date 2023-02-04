@@ -26,9 +26,12 @@ class AttendanceEmployee(models.Model):
             slic = slice(taw,tle)
             dig = str(calc)
             finn = dig[slic]
-            if(finn > '59' or tle > 2):
+            if(finn > '59'):
                 ef = self.end_from-100+60
                 self.working_hour = (ef - self.start_from)
+                self.working_hour_detail = self.working_hour/100
+            elif(tle > 1 and finn > '59' ):
+                self.working_hour = calc-40
                 self.working_hour_detail = self.working_hour/100
             elif(tle == 2 ):
                 self.working_hour = calc-40
