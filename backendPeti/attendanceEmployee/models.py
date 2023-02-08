@@ -1,4 +1,5 @@
 from django.db import models
+import locale
 
 class AttendanceEmployee(models.Model):
     employee_name = models.CharField( max_length=220, null=True, blank=False)
@@ -14,6 +15,8 @@ class AttendanceEmployee(models.Model):
     lembur_hour_detail = models.FloatField( null=True, blank=True)
     years = models.IntegerField( null=True, blank=True)
     months = models.IntegerField( null=True, blank=True)
+    days = models.CharField( max_length=220, null=True, blank=False)
+    ket = models.CharField( max_length=255, null=True, blank=False)
 
     def save(self, *args, **kwargs):
         if(self.end_from != None and self.start_from != None):
@@ -26,23 +29,30 @@ class AttendanceEmployee(models.Model):
             slic = slice(taw,tle)
             dig = str(calc)
             finn = dig[slic]
+            print(calc)
+            print(finn)
+            print(tle)
             if(finn > '59'):
                 ef = self.end_from-100+60
                 self.working_hour = (ef - self.start_from)
                 self.working_hour_detail = self.working_hour/100
             elif(tle > 1 ):
                 if(finn > '59'):
-                    self.working_hour = calc-40
+                    self.working_hour = calc-100+60
+                    self.working_hour_detail = self.working_hour/100
+                elif(finn == '00'):
+                    self.working_hour = calc-100+60
                     self.working_hour_detail = self.working_hour/100
                 else:
                     self.working_hour = calc-40
-                    self.working_hour_detail = self.working_hour/100     
+                    self.working_hour_detail = self.working_hour/100
             elif(tle == 2 ):
-                self.working_hour = calc-40
+                self.working_hour = calc-100+60
                 self.working_hour_detail = self.working_hour/100
             else:
                 self.working_hour = calc
                 self.working_hour_detail = calc/100
+
         if(self.lembur_start != None and self.lembur_start != None):
             calc_lembur = (self.lembur_end - self.lembur_start)
             tlembur = len(str(calc_lembur))
@@ -58,17 +68,20 @@ class AttendanceEmployee(models.Model):
                 self.lembur_hour = (ef_lembur - self.lembur_start)
             elif(tlembur > 1 ):
                 if(finn_lembur > '59'):
-                    self.lembur_hour = calc_lembur-40
+                    self.lembur_hour = calc_lembur-100+60
+                elif(finn_lembur == '00'):
+                    self.lembur_hour = calc-100+60
                 else:
-                    self.lembur_hour = calc_lembur-40
+                    self.lembur_hour = calc_lembur-100+60
             elif(tlembur == 2 ):
-                self.lembur_hour = calc_lembur-40
+                self.lembur_hour = calc_lembur-100+60
             else:
                 self.lembur_hour = calc_lembur
-        # if(self.lembur_hour != None):
-        #     self.working_hour_total = (self.working_hour + self.lembur_hour)
-        # else:
-        #     self.working_hour_total = (self.working_hour + 0)
+
+        if(self.working_date != None):
+            locale.setlocale(locale.LC_TIME, "id_ID")
+            date = (self.working_date.strftime('%A'))
+            self.days = date
 
         self.years = (self.working_date.year)
         self.months = (self.working_date.month)

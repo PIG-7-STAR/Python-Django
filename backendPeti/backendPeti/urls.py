@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
 from userapp.api import views
-from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare
+from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
 from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword
+from calendarDash.api.views import WeekTotals
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -21,7 +22,9 @@ urlpatterns = [
     path('cuti/', include('saldoCuti.api.urls')),
     path('attendance/', include('attendanceEmployee.api.urls')),
     path('attendance/employee-sea/', AttendanceAPISearch.as_view()),
+    path('attendance/employee-analysis/', AttendanceAPIAnalisis.as_view()),
     path('attendance/employee/compare/', AttendanceAPICompare.as_view()),
     path('attendance/total-day/', TopAttendanceAPIView.as_view()),
     path('dashboard/', include('calendarDash.api.urls')),
+    path('dashboard/week-of', WeekTotals.as_view()),
 ]

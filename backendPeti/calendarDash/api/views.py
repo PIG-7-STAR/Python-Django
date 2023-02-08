@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from calendarDash.models import DashboardHRD, CalendarDashHRD
 from .serializers import DashboardHrdSerializers, CalendarDashSerializers
+from django.db.models import Count, Q, Sum
 
 class DashboardTopAPIView(viewsets.ModelViewSet):
     serializer_class = DashboardHrdSerializers
@@ -67,3 +68,36 @@ class CalendarAPIView(APIView):
         serializer = DashboardHrdSerializers(querySet, many=True)
 
         return Response(serializer.data) 
+
+class WeekTotals(APIView):
+    serializer_class = CalendarDashSerializers
+
+    def get(self, request):
+        # total_karyawan = CalendarDashHRD.objects.values('is_active').annotate(count=Count('is_active')).order_by('pk')
+        week = CalendarDashHRD.objects.all()
+        day_of_total = week.count()
+        week_of_total = CalendarDashHRD.objects.aggregate(
+            weekend=Count("day_of", filter=Q(day_of='weekend')),
+            weekday=Count("day_of", filter=Q(day_of='weekday')),
+        )
+
+        # case = CalendarDashHRD.objects.aggregate(
+        #     weekend=filter(day_of='weekend'),
+        #     weekday=filter(day_of='weekday'),
+        # )
+        case_weekend = CalendarDashHRD.objects.filter(day_of__contains='weekend')
+        serializer_weekend = CalendarDashSerializers(case_weekend, many=True)
+
+        case_weekday = CalendarDashHRD.objects.filter(day_of__contains='weekday')
+        serializer_weekday = CalendarDashSerializers(case_weekday, many=True)
+                # return Response(serializer.data) 
+
+        # case = CalendarDashHRD.objects.all().aggregate(Sum('working_hour'))
+
+        return Response({"message" : "WeekDay and WeekEnd", 
+                         "weeks" : week_of_total,
+                         "day_of_total" : day_of_total,
+                         "weekday" : serializer_weekday.data,
+                         "weekend" : serializer_weekend.data,
+                         })
+                         

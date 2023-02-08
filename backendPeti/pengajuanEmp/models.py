@@ -9,7 +9,7 @@ class Petitions(models.Model):
     reason = models.TextField(null=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    jumlah_hari = models.CharField(max_length=24, null=True, blank=True)
+    jumlah_hari = models.IntegerField(null=True, blank=True)
     from_hour = models.IntegerField(null=True, blank=True)
     end_hour = models.IntegerField(null=True, blank=True)
     lembur_hour = models.IntegerField(null=True, blank=True)

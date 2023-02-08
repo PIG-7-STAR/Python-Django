@@ -65,6 +65,34 @@ class AttendanceAPISearch(APIView):
 
         return Response(serializer.data) 
 
+class AttendanceAPIAnalisis(APIView):
+    serializer_class = AttendanceEmployeeSerializers
+
+    def get_queryset(self):
+        petitions = AttendanceEmployee.objects.all().order_by('-working_date')
+        return petitions
+
+    def get(self, request, *args, **kwargs):
+        querySet = AttendanceEmployee.objects.all().order_by('-working_date')
+
+        employee_name = self.request.query_params.get('employee_name', None)
+        working_date = self.request.query_params.get('working_date', None)
+        months = self.request.query_params.get('months', None)
+        years = self.request.query_params.get('years', None)
+
+        if employee_name:
+            querySet=querySet.filter(employee_name__contains=employee_name)
+        if years:
+            querySet=querySet.filter(years=years)
+        if months:
+            querySet=querySet.filter(months=months)
+        if working_date:
+            querySet=querySet.filter(working_date=working_date)
+
+        serializer = AttendanceEmployeeSerializers(querySet, many=True)
+
+        return Response(serializer.data) 
+
 class AttendanceAPICompare(APIView):
     serializer_class = AttendanceEmployeeSerializers
 

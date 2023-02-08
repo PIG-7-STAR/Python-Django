@@ -39,7 +39,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         employee_joined = models.DateField(null=True, blank=True)
         date_joined = models.DateTimeField(default=timezone.now) #karyawan mulai bekerja
         receive_newsletter = models.BooleanField(default=False)
-        sisa_cuti = models.CharField(max_length=20, blank=True, null=True)
+        sisa_cuti = models.IntegerField( blank=True, null=True)
         birth_date = models.DateField(blank=True, null=True)
         address = models.CharField(max_length=300, blank=True, null=True)
         roles = models.CharField(max_length=30, blank=True, null=True)

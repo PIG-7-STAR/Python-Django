@@ -1,5 +1,6 @@
 from django.db import models
 from userapp.models import User
+from django import utils
 
 class CutiHr(models.Model):
     sisa_cuti = models.CharField(max_length=24,  null=True)
@@ -11,8 +12,11 @@ class CutiHr(models.Model):
 
 class NotesHrd(models.Model):
     employee_name = models.CharField(max_length=50, null=True)
-    notes = models.TextField(max_length=120, null=True)
     date_note = models.DateField(null=True, blank=True)
+    notes = models.TextField(max_length=230, null=True)
+    type_notes = models.CharField(max_length=120, null=True, blank=True)
+    created_at = models.DateTimeField(default=utils.timezone.now)
+    updated_at = models.DateTimeField(auto_now= True)
 
     def __str__(self):
         return self.employee_name

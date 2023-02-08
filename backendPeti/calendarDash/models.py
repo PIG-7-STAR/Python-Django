@@ -8,6 +8,7 @@ class CalendarDashHRD(models.Model):
     years = models.IntegerField( null=True, blank=True)
     months = models.IntegerField( null=True, blank=True)
     days = models.IntegerField( null=True, blank=True)
+    day_of = models.CharField( max_length=220, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.years = (self.date.year)
