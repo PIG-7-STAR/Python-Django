@@ -15,8 +15,8 @@ class AttendanceEmployee(models.Model):
     lembur_hour_detail = models.FloatField( null=True, blank=True)
     years = models.IntegerField( null=True, blank=True)
     months = models.IntegerField( null=True, blank=True)
-    days = models.CharField( max_length=220, null=True, blank=False)
-    ket = models.CharField( max_length=255, null=True, blank=False)
+    days = models.CharField( max_length=220, null=True, blank=True)
+    ket = models.CharField( max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if(self.end_from != None and self.start_from != None):
