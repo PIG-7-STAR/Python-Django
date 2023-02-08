@@ -37,8 +37,11 @@ class AttendanceEmployee(models.Model):
                 if(finn > '59'):
                     self.working_hour = calc-100+60
                     self.working_hour_detail = self.working_hour/100
-                elif(finn == '00'):
-                    self.working_hour = calc-100+60
+                # elif(finn == '00'):
+                #     self.working_hour = calc-100+60
+                #     self.working_hour_detail = self.working_hour/100
+                elif(finn < '40'):
+                    self.working_hour = calc
                     self.working_hour_detail = self.working_hour/100
                 else:
                     self.working_hour = calc-40
