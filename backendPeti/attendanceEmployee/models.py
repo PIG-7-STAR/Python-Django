@@ -1,5 +1,5 @@
 from django.db import models
-import locale
+# import locale
 
 class AttendanceEmployee(models.Model):
     employee_name = models.CharField( max_length=220, null=True, blank=False)
@@ -76,7 +76,7 @@ class AttendanceEmployee(models.Model):
                 self.lembur_hour = calc_lembur
 
         if(self.working_date != None):
-            locale.setlocale(locale.LC_TIME, "id_ID")
+            # locale.setlocale(locale.LC_TIME, "id_ID")
             date = (self.working_date.strftime('%A'))
             self.days = date
 
