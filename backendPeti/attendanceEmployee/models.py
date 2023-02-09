@@ -29,6 +29,23 @@ class AttendanceEmployee(models.Model):
             slic = slice(taw,tle)
             dig = str(calc)
             finn = dig[slic]
+
+            lenstart = len(str(self.start_from))
+            lenend = len(str(self.end_from))
+            tlestr = lenstart-2
+            tleend = lenend-2
+
+            slicstr = slice(tlestr,lenstart)
+            digstr = str(self.start_from)
+            finnstr = digstr[slicstr]
+
+            slicend = slice(tleend,lenend)
+            digend = str(self.end_from)
+            finnend = digend[slicend]
+
+            ac = int(finnstr)+100
+            ad = int(finnend)+100-40
+
             if(finn > '59'):
                 ef = self.end_from-100+60
                 self.working_hour = (ef - self.start_from)
@@ -40,9 +57,13 @@ class AttendanceEmployee(models.Model):
                 # elif(finn == '00'):
                 #     self.working_hour = calc-100+60
                 #     self.working_hour_detail = self.working_hour/100
-                elif(finn < '40'):
-                    self.working_hour = calc
-                    self.working_hour_detail = self.working_hour/100
+                elif(finn < '60'):
+                    if(finnend < finnstr):
+                        self.working_hour = calc-40
+                        self.working_hour_detail = self.working_hour/100
+                    else: 
+                        self.working_hour = calc
+                        self.working_hour_detail = self.working_hour/100
                 else:
                     self.working_hour = calc-40
                     self.working_hour_detail = self.working_hour/100
