@@ -73,7 +73,6 @@ class WeekTotals(APIView):
     serializer_class = CalendarDashSerializers
 
     def get(self, request):
-        # total_karyawan = CalendarDashHRD.objects.values('is_active').annotate(count=Count('is_active')).order_by('pk')
         week = CalendarDashHRD.objects.all()
         day_of_total = week.count()
         week_of_total = CalendarDashHRD.objects.aggregate(
@@ -81,23 +80,28 @@ class WeekTotals(APIView):
             weekday=Count("day_of", filter=Q(day_of='weekday')),
         )
 
-        # case = CalendarDashHRD.objects.aggregate(
-        #     weekend=filter(day_of='weekend'),
-        #     weekday=filter(day_of='weekday'),
-        # )
         case_weekend = CalendarDashHRD.objects.filter(day_of__contains='weekend')
         serializer_weekend = CalendarDashSerializers(case_weekend, many=True)
 
         case_weekday = CalendarDashHRD.objects.filter(day_of__contains='weekday')
         serializer_weekday = CalendarDashSerializers(case_weekday, many=True)
-                # return Response(serializer.data) 
 
-        # case = CalendarDashHRD.objects.all().aggregate(Sum('working_hour'))
+        case_cuti = CalendarDashHRD.objects.filter(day_of__contains='cuti')
+        serializer_cuti = CalendarDashSerializers(case_cuti, many=True)
+
+        case_izin = CalendarDashHRD.objects.filter(day_of__contains='izin')
+        serializer_izin = CalendarDashSerializers(case_izin, many=True)
+
+        case_sakit = CalendarDashHRD.objects.filter(day_of__contains='sakit')
+        serializer_sakit = CalendarDashSerializers(case_sakit, many=True)
 
         return Response({"message" : "WeekDay and WeekEnd", 
                          "weeks" : week_of_total,
                          "day_of_total" : day_of_total,
                          "weekday" : serializer_weekday.data,
                          "weekend" : serializer_weekend.data,
+                         "cuti" : serializer_cuti.data,
+                         "izin" : serializer_izin.data,
+                         "sakit" : serializer_sakit.data
                          })
                          

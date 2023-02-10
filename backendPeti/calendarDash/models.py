@@ -9,11 +9,15 @@ class CalendarDashHRD(models.Model):
     months = models.IntegerField( null=True, blank=True)
     days = models.IntegerField( null=True, blank=True)
     day_of = models.CharField( max_length=220, null=True, blank=True)
+    day_name = models.CharField(max_length=240, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.years = (self.date.year)
         self.months = (self.date.month)
         self.days = (self.date.day)
+        if(self.date != None):
+            dates = (self.date.strftime('%A'))
+            self.day_name = dates
         super(CalendarDashHRD, self).save(*args, **kwargs)
  
     def __str__(self):  
