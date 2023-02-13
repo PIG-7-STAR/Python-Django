@@ -74,7 +74,7 @@ class AttendanceEmployee(models.Model):
                 self.working_hour = calc
                 self.working_hour_detail = calc/100
 
-        if(self.lembur_start != None and self.lembur_start != None):
+        if(self.lembur_end != None and self.lembur_start != None):
             calc_lembur = (self.lembur_end - self.lembur_start)
             tlembur = len(str(calc_lembur))
             if(tlembur == 1):
@@ -84,7 +84,6 @@ class AttendanceEmployee(models.Model):
             slicesLembur = slice(tawLembur,tlembur)
             dig_lembur = str(calc_lembur)
             finn_lembur = dig_lembur[slicesLembur]
-
 
             lemstart = len(str(self.lembur_start))
             lenend = len(str(self.lembur_end))
@@ -110,9 +109,9 @@ class AttendanceEmployee(models.Model):
                     self.lembur_hour = calc_lembur-100+60
                 elif(finn_lembur < '60'):
                     if(finnendlem < finnstrlem):
-                        self.lembur_hour = calc-100+60
+                        self.lembur_hour = calc_lembur
                     else:
-                        self.lembur_hour = calc
+                        self.lembur_hour = calc_lembur
                 else:
                     self.lembur_hour = calc_lembur-100+60
             elif(tlembur == 2 ):
