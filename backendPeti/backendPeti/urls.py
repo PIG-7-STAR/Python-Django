@@ -17,7 +17,7 @@ urlpatterns = [
     path('notes/', include('notes.api.urls')),
     path('users/', include('userapp.api.urls')),
     path('users/employee/search/', UserSearch.as_view()),
-    path('users/employee/contract/', UserSearchContract.as_view()),
+    path('users/employee/contracts/', UserSearchContract.as_view()),
     path('users/employee/name/', UserSearchView.as_view()),
     path('users/employee-total/', views.UserTotal.as_view()),
     path('cuti/', include('saldoCuti.api.urls')),
