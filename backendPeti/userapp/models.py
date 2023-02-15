@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.utils import timezone
+from datetime import date
 
 class UserManager(BaseUserManager):
     def _create_user(self, username, email, password, is_active, is_staff, is_superuser, **extrafields):
@@ -48,6 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         employee_code = models.CharField(max_length=250, blank=True, null=True, default="EmpId")
         contract_start = models.DateField(blank=True, null=True)
         contract_end = models.DateField(blank=True, null=True)
+        contract_time = models.CharField(max_length=250, blank=True, null=True)
  
         objects = UserManager()
 
@@ -57,8 +59,24 @@ class User(AbstractBaseUser, PermissionsMixin):
                 super(User, self).save(*args, **kwargs)
             else:
                 super(User, self).save(*args, **kwargs)
-            
 
+            if(self.contract_start != None and self.contract_end != None):
+                # x = date(2020, 5, 17)
+                # y = date(2020, 8, 4)
+                vas = self.contract_end - self.contract_start
+                years = vas.days // 365
+                months = (vas.days - years *365) // 30
+                days = (vas.days - years * 365 - months*30)
+                print(years)
+                tah = str(years)
+                bul = str(months)
+                har = str(days)
+                contract_times = tah + ' Tahun ' + bul + ' Bulan ' + har + ' Hari'
+                print(contract_times)
+                print(tah)
+                self.contract_time = contract_times
+                super(User, self).save(*args, **kwargs)
+            
         USERNAME_FIELD = 'username'
         REQUIRED_FIELDS =  [ 'email', ]
 
