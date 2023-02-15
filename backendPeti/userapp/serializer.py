@@ -44,6 +44,8 @@ class RegisterSerializer(serializers.Serializer):
             'email' : self.validated_data.get('email', ''),
             'gender' : self.validated_data.get('gender', ''),
             'religion' : self.validated_data.get('religion', ''),
+            'contract_start' : self.validated_data.get('contract_start', ''),
+            'contract_end' : self.validated_data.get('contract_end', ''),
         }
     
     def save(self, request):
@@ -65,8 +67,13 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('pk', 'employee_code', 'username', 'email', 'first_name', 'last_name', 'is_active', 'name', 'division', 'employee_joined', 'birth_date',
-                    'sisa_cuti', 'roles', 'gender', 'religion')
+                    'sisa_cuti', 'roles', 'gender', 'religion', 'contract_start', 'contract_end')
         # read_only_fields = ('email', )
+
+class UserContractSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('pk','employee_code', 'name', 'division', 'contract_start', 'contract_end' )
 
 class UserRolesSerializers(serializers.ModelSerializer):
     class Meta:

@@ -46,6 +46,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         gender = models.CharField(max_length=30, blank=True, null=True)
         religion = models.CharField(max_length=30, blank=True, null=True)
         employee_code = models.CharField(max_length=250, blank=True, null=True, default="EmpId")
+        contract_start = models.DateField(blank=True, null=True)
+        contract_end = models.DateField(blank=True, null=True)
  
         objects = UserManager()
 

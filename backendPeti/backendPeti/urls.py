@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
-from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword
+from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract
 from calendarDash.api.views import WeekTotals
 
 urlpatterns = [
@@ -17,6 +17,7 @@ urlpatterns = [
     path('notes/', include('notes.api.urls')),
     path('users/', include('userapp.api.urls')),
     path('users/employee/search/', UserSearch.as_view()),
+    path('users/employee/contract/', UserSearchContract.as_view()),
     path('users/employee/name/', UserSearchView.as_view()),
     path('users/employee-total/', views.UserTotal.as_view()),
     path('cuti/', include('saldoCuti.api.urls')),

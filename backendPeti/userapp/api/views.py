@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.db.models import Count, Q
-from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer
+from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
 from userapp.models import User, UserRoles, UserDivision
 from django.db.models import Sum
 from attendanceEmployee.models import AttendanceEmployee
@@ -107,11 +107,11 @@ class UserSearch(APIView):
     serializer_class = UserDetailsSerializer
 
     def get_queryset(self):
-        users = User.objects.all().order_by('-id')
+        users = User.objects.all().order_by('name')
         return users
     
     def get(self, request, *args, **kwargs):
-        querySet = User.objects.all().order_by('-id')
+        querySet = User.objects.all().order_by('name')
         
         name = self.request.query_params.get('name', None)
         roles = self.request.query_params.get('roles', None)
@@ -125,6 +125,31 @@ class UserSearch(APIView):
             querySet=querySet.filter(division__contains=division)
 
         serializer = UserDetailsSerializer(querySet, many=True)
+
+        return Response(serializer.data) 
+
+class UserSearchContract(APIView):
+    serializer_class = UserContractSerializers
+
+    def get_queryset(self):
+        users = User.objects.all().order_by('name')
+        return users
+    
+    def get(self, request, *args, **kwargs):
+        querySet = User.objects.all().order_by('name')
+        
+        name = self.request.query_params.get('name', None)
+        contract_start = self.request.query_params.get('contract_start', None)
+        contract_end = self.request.query_params.get('contract_end', None)
+
+        if name:
+            querySet=querySet.filter(name__icontains=name)
+        if contract_start:
+            querySet=querySet.filter(roles__contains=contract_start)
+        if contract_end:
+            querySet=querySet.filter(division__contains=contract_end)
+
+        serializer = UserContractSerializers(querySet, many=True)
 
         return Response(serializer.data) 
 
