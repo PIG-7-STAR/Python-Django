@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notes', '0015_auto_20230216_1714'),
+        ('notes', '0014_remove_noteshrd_employee_id'),
     ]
 
     operations = [
