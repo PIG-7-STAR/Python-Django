@@ -1,7 +1,7 @@
 import os
 from .settings import *
 
-DEBUG = False
+DEBUG = True
 
 # ALLOWED_HOSTS = ['*','https://admin-staging.lolab.id',
 #                  'localhost', '10.101.213.97', "https://eirene.netlify.app",
