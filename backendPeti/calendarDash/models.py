@@ -10,6 +10,7 @@ class CalendarDashHRD(models.Model):
     days = models.IntegerField( null=True, blank=True)
     day_of = models.CharField( max_length=220, null=True, blank=True)
     day_name = models.CharField(max_length=240, null=True, blank=True)
+    day_opt = models.CharField(max_length=240, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.years = (self.date.year)
