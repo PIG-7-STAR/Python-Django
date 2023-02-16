@@ -20,7 +20,7 @@ class NotesHrd(models.Model):
     years = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(default=utils.timezone.now)
     updated_at = models.DateTimeField(auto_now= True)
-    notes_optional = models.TextField(max_length=230, null=True, blank=True, default="optional")
+    # notes_optional = models.TextField(max_length=230, null=True, blank=True, default="optional")
 
     def save(self, *args, **kwargs):
             if(self.date_note != None ):
