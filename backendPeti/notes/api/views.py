@@ -19,9 +19,9 @@ class NotesAPIView(APIView):
         employee_name = self.request.query_params.get('employee_name', None)
         notes = self.request.query_params.get('notes', None)
         date_note = self.request.query_params.get('date_note', None)
-        day = self.request.query_params.get('day', None)
-        month = self.request.query_params.get('month', None)
-        year = self.request.query_params.get('year', None)
+        hari = self.request.query_params.get('hari', None)
+        bulan = self.request.query_params.get('bulan', None)
+        tahun = self.request.query_params.get('tahun', None)
 
         if employee_name:
             querySet=querySet.filter(employee_name=employee_name)
@@ -29,12 +29,12 @@ class NotesAPIView(APIView):
             querySet=querySet.filter(date_note=date_note)
         if notes:
             querySet=querySet.filter(notes=notes)
-        if day:
-            querySet=querySet.filter(day=day)
-        if month:
-            querySet=querySet.filter(month=month)
-        if year:
-            querySet=querySet.filter(year=year)
+        if hari:
+            querySet=querySet.filter(hari=hari)
+        if bulan:
+            querySet=querySet.filter(bulan=bulan)
+        if tahun:
+            querySet=querySet.filter(tahun=tahun)
 
         serializer = NotesSerializer(querySet, many=True)
 
