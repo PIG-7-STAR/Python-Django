@@ -25,7 +25,7 @@ class NotesHrd(models.Model):
             if(self.date_note != None ):
                 self.day = self.date_note.day
                 self.month = self.date_note.month
-                self.year = self.date_note.year
+                self.years = self.date_note.year
                 super(NotesHrd, self).save(*args, **kwargs)
             else:
                 super(NotesHrd, self).save(*args, **kwargs)
