@@ -17,7 +17,7 @@ class NotesHrd(models.Model):
     type_notes = models.CharField(max_length=120, null=True, blank=True)
     day = models.IntegerField(null=True, blank=True)
     month = models.IntegerField(null=True, blank=True)
-    year = models.IntegerField(null=True, blank=True)
+    years = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(default=utils.timezone.now)
     updated_at = models.DateTimeField(auto_now= True)
     notes_optional = models.TextField(max_length=230, null=True, blank=True, default="optional")
@@ -26,7 +26,7 @@ class NotesHrd(models.Model):
             if(self.date_note != None ):
                 self.day = self.date_note.day
                 self.month = self.date_note.month
-                self.year = self.date_note.year
+                self.years = self.date_note.year
                 super(NotesHrd, self).save(*args, **kwargs)
             else:
                 super(NotesHrd, self).save(*args, **kwargs)
