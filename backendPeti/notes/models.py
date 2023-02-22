@@ -20,6 +20,8 @@ class NotesHrd(models.Model):
     tahun = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(default=utils.timezone.now)
     updated_at = models.DateTimeField(auto_now= True)
+    name_day = models.CharField(max_length=120, null=True, blank=True)
+
     # notes_optional = models.TextField(max_length=230, null=True, blank=True, default="optional")
 
     def save(self, *args, **kwargs):
@@ -27,6 +29,7 @@ class NotesHrd(models.Model):
                 self.hari = self.date_note.day
                 self.bulan = self.date_note.month
                 self.tahun = self.date_note.year
+                self.name_day = self.date_note.strftime('%A')
                 super(NotesHrd, self).save(*args, **kwargs)
             else:
                 super(NotesHrd, self).save(*args, **kwargs)
