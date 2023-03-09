@@ -2,8 +2,8 @@ from django.db import models
 from django import utils
 from userapp.models import User
 
-class Petitions(models.Model):
-    employee_id = models.CharField(max_length=40, null=True)
+class Submission(models.Model):
+    employee_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     employee_name = models.CharField(max_length=50, null=True)
     division = models.CharField(max_length=120, null=True)
     permission_type = models.CharField(max_length=24,  null=True)
@@ -37,20 +37,18 @@ class Petitions(models.Model):
                 self.working_hour_detail = self.lembur_hour/100
             else:
                 self.lembur_hour = calc
-        super(Petitions, self).save(*args, **kwargs)
+        super(Submission, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.employee_name
     
-class PetitionsCalendar(models.Model):
+class CalendarCutiSubmission(models.Model):
     title = models.CharField(max_length=50, null=True)
     division = models.CharField(max_length=120, null=True)
     permission_type = models.CharField(max_length=24,  null=True)
     reason = models.TextField(null=True)
     start = models.DateTimeField(null=True)
     end = models.DateTimeField(null=True)
-    
-   
 
     def __str__(self):
         return self.title

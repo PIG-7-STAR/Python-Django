@@ -1,11 +1,11 @@
 from django.db import models
-
 from userapp.models import User
 # import locale
+from datetime import datetime
 
-class AttendanceEmployee(models.Model):
-    employee_name = models.CharField( max_length=220, null=True, blank=False)
-    working_date = models.DateField( null=True, blank=True)
+class PresenceEmployee(models.Model):
+    employee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    working_date = models.DateField( null=False, blank=False)
     start_from = models.IntegerField( null=True, blank=True)
     end_from = models.IntegerField( null=True, blank=True)
     lembur_start = models.IntegerField( null=True, blank=True)
@@ -123,27 +123,19 @@ class AttendanceEmployee(models.Model):
 
         if(self.working_date != None):
             # locale.setlocale(locale.LC_TIME, "id_ID")
-            date = (self.working_date.strftime('%A'))
-            self.days = date
-
-        self.years = (self.working_date.year)
-        self.months = (self.working_date.month)
-        super(AttendanceEmployee, self).save(*args, **kwargs)
+            if(self.days == None):
+                cr_date = datetime.strptime(self.working_date, '%Y-%m-%d')
+                date = (cr_date.strftime('%A'))
+                self.days = date
+                self.years = (cr_date.year)
+                self.months = (cr_date.month)
+            else:
+                cr_date = datetime.strptime(self.working_date, '%Y-%m-%d')
+                # date = (self.working_date.strftime('%A'))
+                # self.days = date
+                # self.years = (self.working_date.year)
+                # self.months = (self.working_date.month)
+        super(PresenceEmployee, self).save(*args, **kwargs)
  
     def __str__(self):  
-        return self.employee_name
-
-class PercentageAttendanceEmployee(models.Model):
-    name_label = models.CharField(max_length=245, null=True, blank=False)
-    total_employee_active = models.IntegerField( null=True, blank=True)
-    total_working_days = models.IntegerField( null=True, blank=True)
-    percentage = models.CharField( max_length=245, null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        wk_hour = ((self.total_employee_active * 800) * self.total_working_days)
-        wd_hour = ((self.total_working_days * 800) * self.total_employee_active)
-        self.percentage = ( (wk_hour / wd_hour) * 100)
-        super(PercentageAttendanceEmployee, self).save(*args, **kwargs)
-    
-    def __str__(self):  
-        return self.name_label
+        return self.employee.name

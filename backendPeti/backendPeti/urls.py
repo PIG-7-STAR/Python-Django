@@ -4,6 +4,7 @@ from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
 from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract
 from calendarDash.api.views import WeekTotals
+from presenceEmployee.api.views import PresenceSearch
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +27,16 @@ urlpatterns = [
     path('attendance/employee-analysis/', AttendanceAPIAnalisis.as_view()),
     path('attendance/employee/compare/', AttendanceAPICompare.as_view()),
     path('attendance/total-day/', TopAttendanceAPIView.as_view()),
+
+    path('presence/', include('presenceEmployee.api.urls')),
+    path('presence/employee/search', PresenceSearch.as_view()),
+
+    path('note/', include('noteHR.api.urls')),
+    path('presence/employee/search', PresenceSearch.as_view()),
+
     path('dashboard/', include('calendarDash.api.urls')),
     path('dashboard/week-of', WeekTotals.as_view()),
+
+    path('submission/', include('submisssion.api.urls')),
+
 ]

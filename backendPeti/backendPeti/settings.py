@@ -51,14 +51,16 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.openid',   
     'rest_auth.registration',
-    'fistApp',
     'userapp',
     'pengajuanEmp',
     'notes',
     'loginUser',
     'saldoCuti',
     'attendanceEmployee',
-    'calendarDash'
+    'calendarDash',
+    'presenceEmployee',
+    'noteHR',
+    'submisssion'
 ]
 
 SITE_ID = 1
@@ -190,3 +192,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'userapp.User'
 ACCOUNT_EMAIL_REQUIRED = False
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
