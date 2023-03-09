@@ -100,9 +100,6 @@ class PresenceEmployee(models.Model):
             digendlem = str(self.end_from)
             finnendlem = digendlem[slicesnd]
 
-            ac = int(finnstrlem)+100
-            ad = int(finnendlem)+100-40
-
             if(finn_lembur > '59'):
                 ef_lembur = self.lembur_end-100+60
                 self.lembur_hour = (ef_lembur - self.lembur_start)
@@ -122,8 +119,7 @@ class PresenceEmployee(models.Model):
                 self.lembur_hour = calc_lembur
 
         if(self.working_date != None):
-            # locale.setlocale(locale.LC_TIME, "id_ID")
-            if(self.days == None):
+            if(self.days == '' and self.years == ''):
                 cr_date = datetime.strptime(self.working_date, '%Y-%m-%d')
                 date = (cr_date.strftime('%A'))
                 self.days = date
@@ -131,10 +127,10 @@ class PresenceEmployee(models.Model):
                 self.months = (cr_date.month)
             else:
                 cr_date = datetime.strptime(self.working_date, '%Y-%m-%d')
-                # date = (self.working_date.strftime('%A'))
-                # self.days = date
-                # self.years = (self.working_date.year)
-                # self.months = (self.working_date.month)
+                date = (cr_date.strftime('%A'))
+                self.days = date
+                self.years = (cr_date.year)
+                self.months = (cr_date.month)
         super(PresenceEmployee, self).save(*args, **kwargs)
  
     def __str__(self):  
