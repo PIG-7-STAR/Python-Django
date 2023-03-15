@@ -3,14 +3,13 @@ from submisssion.models import Submission, CalendarCutiSubmission
 from userapp.serializer import UserDetailsSerializer
 
 class SubmissionSerializer(serializers.ModelSerializer):
-    employee_id = UserDetailsSerializer(read_only=True)
+    employee = UserDetailsSerializer(read_only=True)
 
     class Meta:
         model = Submission
         fields = [
-            'employee_id',
-            'employee_name',
-            'division',
+            'id',
+            'employee',
             'permission_type',
             'reason',
             'start_date',
@@ -25,6 +24,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
             'conditional_reasons',
             'suspended_start',
             'suspended_end',
+            'status_submission',
             'created_at',
             'updated_at'
         ]

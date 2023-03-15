@@ -7,10 +7,12 @@ from noteHR.models import NotesApp
 from userapp.models import User
 from presenceEmployee.models import PresenceEmployee
 from datetime import datetime
+from rest_framework.pagination import LimitOffsetPagination
 
 
 class NotesAPIView(APIView):
     serializer_class = NotesSerializer
+    # pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         notes = NotesApp.objects.all().order_by('-id')
@@ -49,11 +51,40 @@ class NotesAPIView(APIView):
 
 class NotesAPIVIEWID(viewsets.ModelViewSet):
     serializer_class = NotesSerializer
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        notes = NotesApp.objects.all().order_by('-id')
-        return notes
-    
+        # notes = NotesApp.objects.all().order_by('-id')
+        querySet = NotesApp.objects.all().order_by('-id')
+        
+        employee_name = self.request.query_params.get('employee_name', None)
+        employee_id = self.request.query_params.get('employee_id', None)
+        notes = self.request.query_params.get('notes', None)
+        date_note = self.request.query_params.get('date_note', None)
+        hari = self.request.query_params.get('hari', None)
+        bulan = self.request.query_params.get('bulan', None)
+        tahun = self.request.query_params.get('tahun', None)
+
+        if employee_name:
+            querySet=querySet.filter(employee__name__icontains=employee_name)
+        if employee_id:
+            querySet=querySet.filter(employee__id__contains=employee_id)
+        if date_note:
+            querySet=querySet.filter(date_note=date_note)
+        if notes:
+            querySet=querySet.filter(notes=notes)
+        if hari:
+            querySet=querySet.filter(hari=hari)
+        if bulan:
+            querySet=querySet.filter(bulan=bulan)
+        if tahun:
+            querySet=querySet.filter(tahun=tahun)
+
+        # serializer = NotesSerializer(querySet, many=True)
+
+        # return serializer.data
+        return querySet
+
     def get_ids(self, request, *args, **kwargs):
         ids = request.query_params["id"]
         if ids != None:
@@ -107,7 +138,7 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         note_object.notes = data['notes']
         note_object.type_notes = data['type_notes']
         note_object.date_note = data['date_note']
-        note_object.date_notes = datetime.strptime(data['date_note'], '%Y-%m-%d')
+        # note_object.date_notes = datetime.strptime(data['date_note'], '%Y-%m-%d')
 
         note_object.save()
 
@@ -116,12 +147,39 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         return Response(serializers.data)
 
     def destroy(self, request, *args, **kwargs):
-        logedin_user = request.user.roles
-        if(logedin_user == "hrd"):
-            notesed = self.get_object()
-            notesed.delete()
-            response_message={"message" : "Notes has been deleted"}
-        else:
-            response_message={"message" : "Not Allowed"}
+        # logedin_user = request.user.roles
+        # if(logedin_user == "hrd"):
+        notesed = self.get_object()
+        notesed.delete()
+        response_message={"message" : "Notes has been deleted"}
+        # else:
+            # response_message={"message" : "Not Allowed"}
 
         return Response(response_message)
+
+
+class NotesAPIID(viewsets.ModelViewSet):
+    serializer_class = NotesSerializer
+
+    def get_queryset(self):
+        notes = NotesApp.objects.all().order_by('-id')
+        return notes
+    
+    def get_ids(self, request, *args, **kwargs):
+        ids = request.query_params["id"]
+        if ids != None:
+                notes = NotesApp.objects(id=ids)
+                serializer = NotesSerializer(notes)
+        else:
+            querySet = self.get_queryset()
+            employee_name = self.request.query_params.get('employee_name', None)
+            notes = self.request.query_params.get('notes', None)
+            date_note = self.request.query_params.get('date_note', None)
+            if employee_name:
+                querySet=querySet.filter(employee_name=employee_name)
+            if date_note:
+                querySet=querySet.filter(date_note=date_note)
+            if notes:
+                querySet=querySet.filter(notes=notes)
+            serializer = NotesSerializer(querySet, many=True)
+        return Response(serializer.data)

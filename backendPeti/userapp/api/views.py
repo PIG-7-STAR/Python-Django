@@ -45,7 +45,7 @@ class UserViewId(viewsets.ModelViewSet):
                 serializer = UserDetailsSerializer(notes)
         else:
             pett = self.get_queryset()
-            serr = UserDetailsSerializer(pett, many=True)
+            serializer = UserDetailsSerializer(pett, many=True)
         return Response(serializer.data)
         
     def post(self, request, *args, **kwargs):

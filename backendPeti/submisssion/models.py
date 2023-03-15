@@ -3,9 +3,7 @@ from django import utils
 from userapp.models import User
 
 class Submission(models.Model):
-    employee_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    employee_name = models.CharField(max_length=50, null=True)
-    division = models.CharField(max_length=120, null=True)
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     permission_type = models.CharField(max_length=24,  null=True)
     reason = models.TextField(null=True)
     start_date = models.DateField(null=True, blank=True)
@@ -22,6 +20,7 @@ class Submission(models.Model):
     suspended_end = models.DateField( null=True, blank=True)
     created_at = models.DateTimeField(default=utils.timezone.now)
     updated_at = models.DateTimeField(auto_now= True)
+    status_submission = models.BooleanField(null=True, blank=True, default=False)
 
     def save(self, *args, **kwargs):
         if(self.end_hour != None and self.from_hour != None):
@@ -37,10 +36,14 @@ class Submission(models.Model):
                 self.working_hour_detail = self.lembur_hour/100
             else:
                 self.lembur_hour = calc
+        if(self.permission_pil == 'disetujui'):
+            self.status_submission = True
+        elif(self.permission_pil != 'disetujui'):
+            self.status_submission = False
         super(Submission, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.employee_name
+        return self.employee.name
     
 class CalendarCutiSubmission(models.Model):
     title = models.CharField(max_length=50, null=True)

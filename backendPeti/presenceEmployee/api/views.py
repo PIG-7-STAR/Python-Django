@@ -2,26 +2,47 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from presenceEmployee.api.paginationpresence import LargeResultsSetPagination
 from presenceEmployee.models import PresenceEmployee
 from .serializers import PresenceEmployeeSerializers
 from django.db.models import Count, Sum, Q
 from userapp.models import User
+from rest_framework.pagination import LimitOffsetPagination
 
 class PresenceAPIView(APIView):
     serializer_class = PresenceEmployeeSerializers
-
+ 
     def get_queryset(self):
         presens = PresenceEmployee.objects.all().order_by('-id')
         return presens
 
 class PresenceAPIViewID(viewsets.ModelViewSet):
     serializer_class = PresenceEmployeeSerializers
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        presences = PresenceEmployee.objects.all().order_by('-id')
-        return presences
+        querySet = PresenceEmployee.objects.all().order_by('-id')
+        employee = self.request.query_params.get('employee', None)
+
+        working_date = self.request.query_params.get('working_date', None)
+        months = self.request.query_params.get('months', None)
+        years = self.request.query_params.get('years', None)
+
+        if employee:
+            querySet=querySet.filter(employee__name__icontains=employee)
+        if years:
+            querySet=querySet.filter(years=years)
+        if months:
+            querySet=querySet.filter(months=months)
+        if working_date:
+            querySet=querySet.filter(working_date=working_date)
+
+        # serializer = PresenceEmployeeSerializers(querySet)
+
+        # return serializer.data
+        return querySet
     
-    def get_ids(self, request, *args, **kwargs):
+    def get_id(self, request, *args, **kwargs):
         ids = request.query_params["id"]
         if ids != None:
                 presences = PresenceEmployee.objects(id=ids)
@@ -98,6 +119,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
 
 class PresenceSearch(APIView):
     serializer_class = PresenceEmployeeSerializers
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         presence_emp = PresenceEmployee.objects.all().order_by('-id')
@@ -105,7 +127,6 @@ class PresenceSearch(APIView):
 
     def get(self, request, *args, **kwargs):
         querySet = PresenceEmployee.objects.all().order_by('-id')
-
         employee = self.request.query_params.get('employee', None)
         working_date = self.request.query_params.get('working_date', None)
         months = self.request.query_params.get('months', None)
@@ -126,6 +147,7 @@ class PresenceSearch(APIView):
 
 class PresenceAPICompare(APIView):
     serializer_class = PresenceEmployeeSerializers
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         petitions = PresenceEmployee.objects.all().order_by('working_date')

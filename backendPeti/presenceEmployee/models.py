@@ -77,7 +77,7 @@ class PresenceEmployee(models.Model):
                 self.working_hour_detail = calc/100
 
         if(self.lembur_end != None and self.lembur_start != None):
-            calc_lembur = (self.lembur_end - self.lembur_start)
+            calc_lembur = ( int(self.lembur_end ) - int(self.lembur_start))
             tlembur = len(str(calc_lembur))
             if(tlembur == 1):
                 tawLembur = tlembur
