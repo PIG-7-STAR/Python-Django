@@ -221,11 +221,11 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                                                        lembur_end=data['end_hour'], lembur_start=data['from_hour']
                                                        )
                      new_presen.save()
-                elif(submission_obj.permission_type == 'cuti'):
-                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
-                                                       lembur_end=data['end_hour'], lembur_start=data['from_hour']
-                                                       )
-                     new_presen.save()
+                # elif(submission_obj.permission_type == 'cuti'):
+                #      new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
+                #                                        lembur_end=data['end_hour'], lembur_start=data['from_hour']
+                #                                        )
+                #      new_presen.save()
 
         submission_obj.save()
 
