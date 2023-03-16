@@ -216,10 +216,16 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
 
         if(submission_obj.permission_pil == 'disetujui'):
              if(submission_obj.status_submission == False):
-                 new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
+                if(submission_obj.permission_type == 'lembur'):
+                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
                                                        lembur_end=data['end_hour'], lembur_start=data['from_hour']
                                                        )
-                 new_presen.save()
+                     new_presen.save()
+                elif(submission_obj.permission_type == 'cuti'):
+                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
+                                                       lembur_end=data['end_hour'], lembur_start=data['from_hour']
+                                                       )
+                     new_presen.save()
 
         submission_obj.save()
 
