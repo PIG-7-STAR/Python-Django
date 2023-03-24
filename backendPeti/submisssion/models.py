@@ -43,15 +43,19 @@ class Submission(models.Model):
         super(Submission, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.employee.name
+        return self.permission_type
     
 class CalendarCutiSubmission(models.Model):
-    title = models.CharField(max_length=50, null=True)
-    division = models.CharField(max_length=120, null=True)
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    title = models.CharField(max_length=50, null=True, blank=True)
     permission_type = models.CharField(max_length=24,  null=True)
     reason = models.TextField(null=True)
     start = models.DateTimeField(null=True)
     end = models.DateTimeField(null=True)
 
+    def save(self, *args, **kwargs):
+        self.title = self.employee.name
+        super(CalendarCutiSubmission, self).save(*args, **kwargs)
+
     def __str__(self):
-        return self.title
+        return self.permission_type

@@ -7,7 +7,7 @@ from presenceEmployee.models import PresenceEmployee
 from userapp.models import User
 from .serializer import SubmissionSerializer, SubmissionCutiCalendarSerializer
 from submisssion.models import Submission, CalendarCutiSubmission
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class SubmissionAPIView(APIView):
     serializer_class = SubmissionSerializer
@@ -160,7 +160,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
 
                     new_pengajuan = Submission.objects.create(employee=User.objects.get(id=pengajuan_data["employee"]), permission_type=pengajuan_data['permission_type'], 
                                                               reason=pengajuan_data['reason'],  jumlah_hari=pengajuan_data['jumlah_hari'], 
-                                                                start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'], 
+                                                              start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'],
                             )
                     serializer = SubmissionSerializer(new_pengajuan)
                     response_message={"message" : "Berhasil Membuat Pengajuan",
@@ -202,30 +202,36 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         submission_obj.end_date = data['end_date']
         submission_obj.return_date = data['return_date']
         submission_obj.jumlah_hari = data['jumlah_hari']
-        if(submission_obj.from_hour != None and submission_obj.end_hour != None):
+        if(submission_obj.from_hour != None and submission_obj.end_hour != None and submission_obj.permission_type == 'lembur'):
             submission_obj.from_hour = data['from_hour']
             submission_obj.end_hour = data['end_hour']
         if(submission_obj.permission_pil != ''):
             submission_obj.permission_pil = data['permission_pil']
-        if(submission_obj.reason_rejected != None and submission_obj.conditional_reasons != None):
-            submission_obj.reason_rejected = data['reason_rejected']
-            submission_obj.conditional_reasons = data['conditional_reasons']
-        if(submission_obj.suspended_start != None and submission_obj.suspended_end != None):
-            submission_obj.suspended_start = data['suspended_start']
-            submission_obj.suspended_end = data['suspended_end']
-
-        if(submission_obj.permission_pil == 'disetujui'):
-             if(submission_obj.status_submission == False):
-                if(submission_obj.permission_type == 'lembur'):
-                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
-                                                       lembur_end=data['end_hour'], lembur_start=data['from_hour']
-                                                       )
-                     new_presen.save()
-                # elif(submission_obj.permission_type == 'cuti'):
-                #      new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
-                #                                        lembur_end=data['end_hour'], lembur_start=data['from_hour']
-                #                                        )
-                #      new_presen.save()
+            if(submission_obj.permission_pil == 'ditolak'):
+                if(submission_obj.reason_rejected != None and submission_obj.conditional_reasons != None):
+                    submission_obj.reason_rejected = data['reason_rejected']
+                    submission_obj.conditional_reasons = data['conditional_reasons']
+            elif(submission_obj.permission_pil == 'ditangguhkan'):
+                if(submission_obj.suspended_start != None and submission_obj.suspended_end != None):
+                    submission_obj.suspended_start = data['suspended_start']
+                    submission_obj.suspended_end = data['suspended_end']
+            elif(submission_obj.permission_pil == 'disetujui'):
+                if(submission_obj.status_submission == False):
+                    if(submission_obj.permission_type == 'lembur'):
+                        new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
+                                                        lembur_end=data['end_hour'], lembur_start=data['from_hour']
+                                                        )
+                        new_presen.save()
+                    elif(submission_obj.permission_type == 'cuti'):
+                        submiss_object = CalendarCutiSubmission.objects.create(employee=User.objects.get(id=data["employee"]), 
+                            permission_type=data['permission_type'], reason=data['reason'],
+                            start=datetime.strptime(data['start_date'], '%Y-%m-%d') , end=datetime.strptime(data['end_date'], '%Y-%m-%d'))
+                        users_obj = User.objects.get(id=data["employee"])
+                        print(users_obj)
+                        # data_user = request.data
+                        users_obj.sisa_cuti = int(users_obj.sisa_cuti) - int(submission_obj.jumlah_hari)
+                        users_obj.save()
+                        submiss_object.save()
 
         submission_obj.save()
 
@@ -233,6 +239,22 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
 
         return Response({"message" : "Berhasil",
                                 "data": serializers.data})
+    
+    def destroy(self, request, *args, **kwargs):
+        logedin_user = request.user
+
+        if(logedin_user.roles == "hrd"):
+            pengajuan = self.get_object()
+            if(pengajuan.permission_type == 'cuti' or pengajuan.permission_type == 'ijin'):
+                users_obj = User.objects.get(id=pengajuan.employee.pk)
+                users_obj.sisa_cuti = int(users_obj.sisa_cuti) + int(pengajuan.jumlah_hari)
+                users_obj.save()
+            pengajuan.delete()
+            response_message={"message" : "Berhasil menghapus pengajuan"}
+        else:
+            response_message={"message" : "Not Allowed"}
+
+        return Response(response_message)
 
 
 class SubmissionCalendarAPI(viewsets.ModelViewSet):
@@ -264,15 +286,15 @@ class SubmissionCalendarAPI(viewsets.ModelViewSet):
 
     
     def post(self, request, *args, **kwargs):
-        pengajuan_data = request.data
-        strd = pengajuan_data.get("start")
-        edrd = pengajuan_data.get("end")
-        new_pengajuan = CalendarCutiSubmission.objects.create(title=pengajuan_data['title'], division=pengajuan_data['division'], 
-                        permission_type=pengajuan_data['permission_type'], reason=pengajuan_data['reason'],
-                        start=pengajuan_data['start'], end=pengajuan_data['end'])
+        submiss_data = request.data
+        strd = submiss_data.get("start")
+        edrd = submiss_data.get("end")
+        submiss_obj = CalendarCutiSubmission.objects.create(title=submiss_data['title'], division=submiss_data['division'], 
+                        permission_type=submiss_data['permission_type'], reason=submiss_data['reason'],
+                        start=submiss_data['start'], end=submiss_data['end'])
         if(edrd >= strd ):
-            new_pengajuan.save()
-            serializer = SubmissionCutiCalendarSerializer(new_pengajuan)
+            submiss_obj.save()
+            serializer = SubmissionCutiCalendarSerializer(submiss_obj)
             response_message={"message" : "Berhasil Mengajukan pengajuan"}
         else:
             response_message={"message" : "data tanggal akhir tidak boleh kurang dari tanggal awal"}

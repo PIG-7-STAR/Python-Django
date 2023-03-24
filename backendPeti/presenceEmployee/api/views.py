@@ -156,7 +156,7 @@ class PresenceAPICompare(APIView):
     def get(self, request, *args, **kwargs):
         querySet = PresenceEmployee.objects.all().order_by('working_date')
 
-        employee_name = self.request.query_params.get('employee_name', None)
+        employee = self.request.query_params.get('employee', None)
         working_date = self.request.query_params.get('working_date', None)
         months = self.request.query_params.get('months', None)
         years = self.request.query_params.get('years', None)
@@ -165,8 +165,8 @@ class PresenceAPICompare(APIView):
         
         if work_date and end_work_date:
             querySet=querySet.filter(working_date__gte=work_date, working_date__lte=end_work_date)
-        if employee_name:
-            querySet=querySet.filter(employee__name__contains=employee_name)
+        if employee:
+            querySet=querySet.filter(employee__id=employee)
         if years:
             querySet=querySet.filter(years=years)
         if months:

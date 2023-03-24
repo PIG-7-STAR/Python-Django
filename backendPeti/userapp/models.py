@@ -67,13 +67,12 @@ class User(AbstractBaseUser, PermissionsMixin):
                 years = vas.days // 365
                 months = (vas.days - years *365) // 30
                 days = (vas.days - years * 365 - months*30)
-                print(years)
                 tah = str(years)
                 bul = str(months)
                 har = str(days)
                 contract_times = tah + ' Tahun ' + bul + ' Bulan ' + har + ' Hari'
-                print(contract_times)
-                print(tah)
+                # print(contract_times)
+                # print(tah)
                 self.contract_time = contract_times
                 super(User, self).save(*args, **kwargs)
             

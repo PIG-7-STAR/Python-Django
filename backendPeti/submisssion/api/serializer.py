@@ -31,7 +31,17 @@ class SubmissionSerializer(serializers.ModelSerializer):
         depth = 1
 
 class SubmissionCutiCalendarSerializer(serializers.ModelSerializer):
+    employee = UserDetailsSerializer(read_only=True)
+
     class Meta:
         model = CalendarCutiSubmission
-        fields = '__all__' 
+        fields = [
+            "id",
+            "title",
+            "permission_type",
+            "reason",
+            "start",
+            "end",
+            "employee",
+        ]
         
