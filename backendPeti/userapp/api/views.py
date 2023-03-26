@@ -1,8 +1,10 @@
+from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.db.models import Count, Q
+from presenceEmployee.models import PresenceEmployee
 from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
 from userapp.models import User, UserRoles, UserDivision
 from django.db.models import Sum
@@ -105,12 +107,41 @@ class UserTotal(APIView):
 
 class UserWorkHourAPIView(APIView):
     def get(self, request):
-        users = User.objects.all()
-        asc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=True)[:5]
-        desc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=False)[:5]
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        
+        # Jika start_date atau end_date tidak disediakan, default value adalah tanggal 1 Januari 1970
+        if start_date is None:
+            start_date = '1970-01-01'
+        if end_date is None:
+            end_date = '1970-01-01'
+        
+        # Mengubah string tanggal menjadi objek datetime
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        
+        # Memfilter absensi berdasarkan tanggal
+        presences = PresenceEmployee.objects.filter(working_date__gte=start_date, working_date__lte=end_date)
+        
+        # Menghitung total absensi per user
+        user_dict = {}
+        for presence in presences:
+            user = presence.employee
+            if user not in user_dict:
+                user_dict[user] = 0
+            if presence.working_hour is not None:
+                user_dict[user] += presence.working_hour
+            else:
+                user_dict[user] += 0
+            # user_dict[user] += presence.working_hour
+        
+        # Mengurutkan user berdasarkan total absensi
+        asc_sorted_users = sorted(user_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+        desc_sorted_users = sorted(user_dict.items(), key=lambda x: x[1], reverse=False)[:5]
+        
+        # Membuat response
         data_asc = []
-        for user in asc_sorted_users:
-            working_hour = user.get_total_work_hour()
+        for user, working_hour in asc_sorted_users:
             data_asc.append({
                 "id" : user.pk,
                 "name": user.name,
@@ -118,26 +149,50 @@ class UserWorkHourAPIView(APIView):
             })
         
         data_desc = []
-        for user in desc_sorted_users:
-            working_hour = user.get_total_work_hour()
+        for user, working_hour in desc_sorted_users:
             data_desc.append({
                 "id" : user.pk,
                 "name": user.name,
                 "working_hour": working_hour
             })
+        
         return Response({
-                         "top_five" : data_asc,
-                         "low_five" : data_desc,
-                         })
+            "top_five": data_asc,
+            "low_five": data_desc
+        })
+        # users = User.objects.all()
 
-        # for user in top_5_highest + top_5_lowest:
-        #     data.append({
-        #         'user_id': user.id,
-        #         'user_name': user.name,
-        #         'total_work_hour': user.get_total_work_hour()
+        # start_p = self.request.query_params.get('start_p', None)
+        # end_p = self.request.query_params.get('end_p', None)
+        
+        # if start_p and end_p:
+        #     users=users.filter(working_date__gte=start_p, working_date__lte=end_p)
+
+        # asc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=True)[:5]
+        # desc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=False)[:5]
+
+        # data_asc = []
+        # for user in asc_sorted_users:
+        #     working_hour = user.get_total_work_hour()
+        #     data_asc.append({
+        #         "id" : user.pk,
+        #         "name": user.name,
+        #         "working_hour": working_hour
         #     })
-        # data_sort = sorted(data, key=lambda x: x['total_'], reverse=True) 
-        # return data_sort
+        
+        # data_desc = []
+        # for user in desc_sorted_users:
+        #     working_hour = user.get_total_work_hour()
+        #     data_desc.append({
+        #         "id" : user.pk,
+        #         "name": user.name,
+        #         "working_hour": working_hour
+        #     })
+        # return Response({
+        #                  "top_five" : data_asc,
+        #                  "low_five" : data_desc,
+        #                  })
+
 
 class UserSearch(APIView):
     serializer_class = UserDetailsSerializer
