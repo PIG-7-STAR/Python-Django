@@ -4,7 +4,7 @@ from userapp.models import User
 from datetime import datetime
 
 class PresenceEmployee(models.Model):
-    employee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    employee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='working_hours')
     working_date = models.DateField( null=False, blank=False)
     start_from = models.IntegerField( null=True, blank=True)
     end_from = models.IntegerField( null=True, blank=True)

@@ -103,6 +103,42 @@ class UserTotal(APIView):
                          "total_work_hour_all" : case,
                          })
 
+class UserWorkHourAPIView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        asc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=True)[:5]
+        desc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=False)[:5]
+        data_asc = []
+        for user in asc_sorted_users:
+            working_hour = user.get_total_work_hour()
+            data_asc.append({
+                "id" : user.pk,
+                "name": user.name,
+                "working_hour": working_hour
+            })
+        
+        data_desc = []
+        for user in desc_sorted_users:
+            working_hour = user.get_total_work_hour()
+            data_desc.append({
+                "id" : user.pk,
+                "name": user.name,
+                "working_hour": working_hour
+            })
+        return Response({
+                         "top_five" : data_asc,
+                         "low_five" : data_desc,
+                         })
+
+        # for user in top_5_highest + top_5_lowest:
+        #     data.append({
+        #         'user_id': user.id,
+        #         'user_name': user.name,
+        #         'total_work_hour': user.get_total_work_hour()
+        #     })
+        # data_sort = sorted(data, key=lambda x: x['total_'], reverse=True) 
+        # return data_sort
+
 class UserSearch(APIView):
     serializer_class = UserDetailsSerializer
 

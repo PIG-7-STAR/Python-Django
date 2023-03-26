@@ -3,6 +3,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.utils import timezone
 from datetime import date
+from django.db.models import Sum
 
 class UserManager(BaseUserManager):
     def _create_user(self, username, email, password, is_active, is_staff, is_superuser, **extrafields):
@@ -75,6 +76,10 @@ class User(AbstractBaseUser, PermissionsMixin):
                 # print(tah)
                 self.contract_time = contract_times
                 super(User, self).save(*args, **kwargs)
+
+        def get_total_work_hour(self):
+            total_hour = self.working_hours.aggregate(total_work_hour=Sum('working_hour'))['total_work_hour']
+            return total_hour if total_hour is not None else 0
             
         USERNAME_FIELD = 'username'
         REQUIRED_FIELDS =  [ 'email', ]

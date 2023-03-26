@@ -57,40 +57,45 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
         wrkdt = presen.get("working_date")
         strfrom = presen.get("start_from")
         lmbrstr = presen.get("lembur_start")
-        if(wrkdt != None):
-            if(strfrom and lmbrstr != None):
-                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
-                                                            end_from=int(presen["end_from"]), start_from=int(presen["start_from"]), lembur_start=int(presen["lembur_start"]), 
-                                                            lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
-                                                            )
-                serializer = PresenceEmployeeSerializers(new_presen)
-                response_message={"message" : "Berhasil membuat data",
-                                    "data": serializer.data
-                    }
-                new_presen.save()
-                res = Response(response_message)
-            elif(strfrom != None):
-                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
-                                                            end_from=int(presen["end_from"]), start_from=int(presen["start_from"]),  ket=presen["ket"]
-                                                            )
-                serializer = PresenceEmployeeSerializers(new_presen)
-                response_message={"message" : "Berhasil membuat data",
-                                    "data": serializer.data
-                    }
-                new_presen.save()
-                res = Response(response_message)
-            elif(lmbrstr != None):
-                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
-                                                             lembur_start=int(presen["lembur_start"]), lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
-                                                            )
-                serializer = PresenceEmployeeSerializers(new_presen)
-                response_message={"message" : "Berhasil membuat data",
-                                    "data": serializer.data
-                    }
-                new_presen.save()
-                res = Response(response_message)
-            else:
-                res = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)  
+        employee = User.objects.get(id=presen["employee"])
+
+        if PresenceEmployee.objects.filter(Q(employee=employee) & Q(working_date=wrkdt)).exists():
+            res = Response({"message" : "Sudah ada data absensi yang sama"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if(wrkdt != None):
+                if(strfrom and lmbrstr != None):
+                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
+                                                                end_from=int(presen["end_from"]), start_from=int(presen["start_from"]), lembur_start=int(presen["lembur_start"]), 
+                                                                lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
+                                                                )
+                    serializer = PresenceEmployeeSerializers(new_presen)
+                    response_message={"message" : "Berhasil membuat data",
+                                        "data": serializer.data
+                        }
+                    new_presen.save()
+                    res = Response(response_message)
+                elif(strfrom != None):
+                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
+                                                                end_from=int(presen["end_from"]), start_from=int(presen["start_from"]),  ket=presen["ket"]
+                                                                )
+                    serializer = PresenceEmployeeSerializers(new_presen)
+                    response_message={"message" : "Berhasil membuat data",
+                                        "data": serializer.data
+                        }
+                    new_presen.save()
+                    res = Response(response_message)
+                elif(lmbrstr != None):
+                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
+                                                                lembur_start=int(presen["lembur_start"]), lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
+                                                                )
+                    serializer = PresenceEmployeeSerializers(new_presen)
+                    response_message={"message" : "Berhasil membuat data",
+                                        "data": serializer.data
+                        }
+                    new_presen.save()
+                    res = Response(response_message)
+                else:
+                    res = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)
         return res
     
     def update(self, request, *args, **kwargs):
@@ -166,7 +171,35 @@ class PresenceAPICompare(APIView):
         if work_date and end_work_date:
             querySet=querySet.filter(working_date__gte=work_date, working_date__lte=end_work_date)
         if employee:
-            querySet=querySet.filter(employee__id=employee)
+            querySet=querySet.filter(employee__pk=employee)
+        if years:
+            querySet=querySet.filter(years=years)
+        if months:
+            querySet=querySet.filter(months=months)
+        if working_date:
+            querySet=querySet.filter(working_date=working_date)
+
+        serializer = PresenceEmployeeSerializers(querySet, many=True)
+
+        return Response(serializer.data) 
+
+class PresenceAPIAnalisis(APIView):
+    serializer_class = PresenceEmployeeSerializers
+
+    def get_queryset(self):
+        petitions = PresenceEmployee.objects.all().order_by('-working_date')
+        return petitions
+
+    def get(self, request, *args, **kwargs):
+        querySet = PresenceEmployee.objects.all().order_by('-working_date')
+
+        employee = self.request.query_params.get('employee', None)
+        working_date = self.request.query_params.get('working_date', None)
+        months = self.request.query_params.get('months', None)
+        years = self.request.query_params.get('years', None)
+
+        if employee:
+            querySet=querySet.filter(employee__pk=employee)
         if years:
             querySet=querySet.filter(years=years)
         if months:

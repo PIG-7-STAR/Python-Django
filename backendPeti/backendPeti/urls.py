@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.urls import path, include
 from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
-from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract
+from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView
 from calendarDash.api.views import WeekTotals
-from presenceEmployee.api.views import PresenceAPICompare, PresenceSearch
+from presenceEmployee.api.views import PresenceAPIAnalisis, PresenceAPICompare, PresenceSearch
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,15 +28,19 @@ urlpatterns = [
     path('attendance/employee/compare/', AttendanceAPICompare.as_view()),
     path('attendance/total-day/', TopAttendanceAPIView.as_view()),
 
-    path('presence/', include('presenceEmployee.api.urls')),
-    path('presence/employee/search', PresenceSearch.as_view()),
-    path('presence/employee/compare', PresenceAPICompare.as_view()),
+    path('api/presence/', include('presenceEmployee.api.urls')),
+    path('api/presence/employee/search', PresenceSearch.as_view()),
+    path('api/presence/employee/compare', PresenceAPICompare.as_view()),
+    path('api/presence/employee/analysis/', PresenceAPIAnalisis.as_view()),
 
-    path('note/', include('noteHR.api.urls')),
+    path('api/note/', include('noteHR.api.urls')),
 
-    path('dashboard/', include('calendarDash.api.urls')),
-    path('dashboard/week-of', WeekTotals.as_view()),
+    path('api/dashboard/', include('calendarDash.api.urls')),
+    path('api/dashboard/week-of', WeekTotals.as_view()),
 
-    path('submission/', include('submisssion.api.urls')),
+    path('api/submission/', include('submisssion.api.urls')),
+
+    path('api/employee/best_of/', UserWorkHourAPIView.as_view()),
+
 
 ]
