@@ -210,3 +210,30 @@ class PresenceAPIAnalisis(APIView):
         serializer = PresenceEmployeeSerializers(querySet, many=True)
 
         return Response(serializer.data) 
+
+class TopPresenceAPIView(APIView):
+    serializer_class = PresenceEmployeeSerializers
+
+    def get(self, request):
+        querySet = PresenceEmployee.objects.values('working_hour').annotate(employee__pk=Count('working_hour')).order_by('-employee__pk')[:5]
+        months = self.request.query_params.get('months', None)
+        
+        querySet = PresenceEmployee.objects.all()
+        employee = self.request.query_params.get('employee', None)
+        if employee:
+            querySet=querySet.filter(employee__pk=employee)
+        if months:
+            querySet=querySet.filter(months=months)
+        
+        total_karyawan_all = querySet.count()
+        total_karyawan = querySet.aggregate(
+            employee_masuk=Count("employee__pk", filter=Q(lembur_hour = None)),
+            employee_lembur=Count("employee__pk", filter=Q(working_hour = None)),
+            employee_masuks=Count("employee__pk", filter=Q(lembur_hour= None) | Q(working_hour = None)),
+        )
+
+        return Response({"Message" : "List Top 5 Employee", 
+                         "data" : total_karyawan,
+                         "cth" : total_karyawan_all,
+                        #  "total" : mda,
+                         })
