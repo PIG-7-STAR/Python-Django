@@ -34,7 +34,6 @@ urlpatterns = [
     path('api/presence/employee/analysis/', PresenceAPIAnalisis.as_view()),
     path('api/presence/total-day/', TopPresenceAPIView.as_view()),
 
-
     path('api/note/', include('noteHR.api.urls')),
 
     path('api/dashboard/', include('calendarDash.api.urls')),

@@ -232,7 +232,7 @@ class TopPresenceAPIView(APIView):
             employee_masuks=Count("employee__pk", filter=Q(lembur_hour= None) | Q(working_hour = None)),
         )
 
-        return Response({"Message" : "List Top 5 Employee", 
+        return Response({ 
                          "data" : total_karyawan,
                          "cth" : total_karyawan_all,
                         #  "total" : mda,
