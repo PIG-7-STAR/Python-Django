@@ -160,38 +160,6 @@ class UserWorkHourAPIView(APIView):
             "top_five": data_asc,
             "low_five": data_desc
         })
-        # users = User.objects.all()
-
-        # start_p = self.request.query_params.get('start_p', None)
-        # end_p = self.request.query_params.get('end_p', None)
-        
-        # if start_p and end_p:
-        #     users=users.filter(working_date__gte=start_p, working_date__lte=end_p)
-
-        # asc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=True)[:5]
-        # desc_sorted_users = sorted(users, key=lambda user: user.get_total_work_hour(), reverse=False)[:5]
-
-        # data_asc = []
-        # for user in asc_sorted_users:
-        #     working_hour = user.get_total_work_hour()
-        #     data_asc.append({
-        #         "id" : user.pk,
-        #         "name": user.name,
-        #         "working_hour": working_hour
-        #     })
-        
-        # data_desc = []
-        # for user in desc_sorted_users:
-        #     working_hour = user.get_total_work_hour()
-        #     data_desc.append({
-        #         "id" : user.pk,
-        #         "name": user.name,
-        #         "working_hour": working_hour
-        #     })
-        # return Response({
-        #                  "top_five" : data_asc,
-        #                  "low_five" : data_desc,
-        #                  })
 
 
 class UserSearch(APIView):

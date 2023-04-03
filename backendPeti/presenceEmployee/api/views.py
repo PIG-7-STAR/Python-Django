@@ -8,6 +8,7 @@ from .serializers import PresenceEmployeeSerializers
 from django.db.models import Count, Sum, Q
 from userapp.models import User
 from rest_framework.pagination import LimitOffsetPagination
+from django.db.models.functions import TruncMonth
 
 class PresenceAPIView(APIView):
     serializer_class = PresenceEmployeeSerializers
@@ -237,3 +238,50 @@ class TopPresenceAPIView(APIView):
                          "cth" : total_karyawan_all,
                         #  "total" : mda,
                          })
+
+class PresenceStatistik(APIView):
+    def get(self, request, year):
+        user_dict = {}
+        presences = PresenceEmployee.objects.filter(working_date__year=year)
+        for presence in presences:
+            user = presence.employee
+            month = presence.working_date.strftime('%B')
+            if user not in user_dict:
+                user_dict[user] = {month: presence.working_hour}
+            else:
+                if month not in user_dict[user]:
+                    user_dict[user][month] = presence.working_hour
+                else:
+                    if(presence.working_hour != None):
+                        user_dict[user][month] += presence.working_hour
+                    else:
+                        user_dict[user][month] += 0
+
+        total_per_month = {}
+        for user, months in user_dict.items():
+            for month, working_hour in months.items():
+                if month not in total_per_month:
+                    total_per_month[month] = working_hour
+                else:
+                    if(working_hour != None):
+                        total_per_month[month] += working_hour
+                    else:
+                        total_per_month[month] += 0
+        
+        return Response({'year': year, 'data': total_per_month})
+
+class PresenceStatistikUser(APIView):
+    def get(self, request, year):
+        user_attendance = PresenceEmployee.objects.filter(working_date__year=year).annotate(month=TruncMonth('working_date')).values('month', 'employee__name').annotate(total_attendance=Count('id'), total_working=Sum('working_hour')).order_by('month', '-total_working')
+        data = {}
+        for item in user_attendance:
+            month = item['month'].strftime("%B")
+            username = item['employee__name']
+            total_attendance = item['total_attendance']
+            total_working = item['total_working']
+            if month in data:
+                data[month].append({'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working})
+            else:
+                data[month] = [{'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working}]
+        
+        return Response(data)

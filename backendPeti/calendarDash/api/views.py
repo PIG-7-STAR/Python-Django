@@ -28,7 +28,7 @@ class CalendarAPIViewSet(viewsets.ModelViewSet):
     serializer_class = CalendarDashSerializers
 
     def get_queryset(self):
-        calendarHr = CalendarDashHRD.objects.all().order_by('-id')
+        calendarHr = CalendarDashHRD.objects.all().order_by('date')
         return calendarHr
     
     def get_ids(self, request, *args, **kwargs):

@@ -176,7 +176,7 @@ class NotesAPIID(viewsets.ModelViewSet):
             notes = self.request.query_params.get('notes', None)
             date_note = self.request.query_params.get('date_note', None)
             if employee_name:
-                querySet=querySet.filter(employee_name=employee_name)
+                querySet=querySet.filter(employee__pk=employee_name)
             if date_note:
                 querySet=querySet.filter(date_note=date_note)
             if notes:

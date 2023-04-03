@@ -17,8 +17,11 @@ class SubmissionAPIView(APIView):
         return petitions
     
     def get(self, request, *args, **kwargs):
-        querySet = Submission.objects.all().order_by('-updated_at')
-        
+        logedin_user = request.user.roles
+        if(logedin_user == 'karyawan'):
+            querySet = Submission.objects.all().filter(employee = request.user.id).order_by('-updated_at')
+        else:
+            querySet = Submission.objects.all().order_by('-updated_at')
         employee = self.request.query_params.get('employee', None)
         permission_type = self.request.query_params.get('permission_type', None)
         permission_pil = self.request.query_params.get('permission_pil', None)
