@@ -3,6 +3,11 @@
 from django.db import migrations, models
 import uuid
 
+def convert_to_uuid(apps, schema_editor):
+    Submission = apps.get_model('yourapp', 'Submission')
+    for submission in Submission.objects.all():
+        submission.uuid_id = uuid.UUID(int=submission.id)
+        submission.save()
 
 class Migration(migrations.Migration):
 
@@ -11,9 +16,24 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name='submission',
+            name='uuid_id',
+            field=models.UUIDField(null=True),
+        ),
+        migrations.RunPython(convert_to_uuid),
         migrations.AlterField(
             model_name='submission',
             name='id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
+            field=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False),
+        ),
+        migrations.RemoveField(
+            model_name='submission',
+            name='id',
+        ),
+        migrations.RenameField(
+            model_name='submission',
+            old_name='uuid_id',
+            new_name='id',
         ),
     ]
