@@ -113,8 +113,12 @@ class SubmissionAPIView(APIView):
 class SubmissionAPIViewID(viewsets.ModelViewSet):
     serializer_class = SubmissionSerializer
 
-    def get_queryset(self):
-        petitions = Submission.objects.all().order_by('-updated_at')
+    def get_queryset(self, request, *args, **kwargs):
+        logedin_user = request.user.roles
+        if(logedin_user == 'karyawan'):
+            petitions = Submission.objects.all().filter(employee = request.user.id).order_by('-updated_at')
+        else:
+            petitions = Submission.objects.all().order_by('-updated_at')
         employee = self.request.query_params.get('employee', None)
         permission_type = self.request.query_params.get('permission_type', None)
         permission_pil = self.request.query_params.get('permission_pil', None)
