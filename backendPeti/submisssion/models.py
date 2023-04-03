@@ -1,10 +1,10 @@
 from django.db import models
 from django import utils
 from userapp.models import User
-import uuid
+# import uuid
 
 class Submission(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     employee = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     permission_type = models.CharField(max_length=24,  null=True)
     reason = models.TextField(null=True)
