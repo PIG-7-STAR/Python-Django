@@ -4,7 +4,7 @@ from django.db import migrations, models
 import uuid
 
 def convert_to_uuid(apps, schema_editor):
-    Submission = apps.get_model('yourapp', 'Submission')
+    Submission = apps.get_model('submisssion', 'Submission')
     for submission in Submission.objects.all():
         submission.uuid_id = uuid.UUID(int=submission.id)
         submission.save()
