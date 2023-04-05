@@ -109,19 +109,22 @@ class UserWorkHourAPIView(APIView):
     def get(self, request):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
+        user_active = request.GET.get('user_active')
         
         # Jika start_date atau end_date tidak disediakan, default value adalah tanggal 1 Januari 1970
         if start_date is None:
             start_date = '1970-01-01'
         if end_date is None:
             end_date = '1970-01-01'
+        if user_active is None:
+            user_active = True
         
         # Mengubah string tanggal menjadi objek datetime
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
         
         # Memfilter absensi berdasarkan tanggal
-        presences = PresenceEmployee.objects.filter(working_date__gte=start_date, working_date__lte=end_date)
+        presences = PresenceEmployee.objects.filter(working_date__gte=start_date, working_date__lte=end_date, employee__is_active=user_active)
         
         # Menghitung total absensi per user
         user_dict = {}

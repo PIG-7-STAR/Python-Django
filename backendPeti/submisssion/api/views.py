@@ -249,13 +249,14 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         if(logedin_user.roles == "hrd"):
             pengajuan = self.get_object()
             if(pengajuan.permission_type == 'cuti' or pengajuan.permission_type == 'ijin'):
-                users_obj = User.objects.get(id=pengajuan.employee.pk)
-                users_obj.sisa_cuti = int(users_obj.sisa_cuti) + int(pengajuan.jumlah_hari)
-                users_obj.save()
+                if(pengajuan.permission_pil == 'disetujui'):
+                    users_obj = User.objects.get(id=pengajuan.employee.pk)
+                    users_obj.sisa_cuti = int(users_obj.sisa_cuti) + int(pengajuan.jumlah_hari)
+                    users_obj.save()
             pengajuan.delete()
             response_message={"message" : "Berhasil menghapus pengajuan"}
         else:
-            response_message={"message" : "Not Allowed"}
+            response_message={"message" : "Hanya HRD yang diperbolehkan menghapus"}
 
         return Response(response_message)
 
