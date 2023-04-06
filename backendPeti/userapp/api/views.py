@@ -194,7 +194,7 @@ class UserSearchContract(APIView):
     serializer_class = UserContractSerializers
 
     def get_queryset(self):
-        users = User.objects.all().order_by('name')
+        users = User.objects.all().order_by('contract_end')
         return users
     
     def get(self, request, *args, **kwargs):
