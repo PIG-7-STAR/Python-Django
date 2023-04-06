@@ -198,14 +198,17 @@ class UserSearchContract(APIView):
         return users
     
     def get(self, request, *args, **kwargs):
-        querySet = User.objects.all().order_by('contract_end').filter(employee__is_active=True)
+        querySet = User.objects.all().order_by('contract_end')
         
         name = self.request.query_params.get('name', None)
         contract_start = self.request.query_params.get('contract_start', None)
         contract_end = self.request.query_params.get('contract_end', None)
+        active_user = self.request.query_params.get('active_user', None)
 
         if name:
             querySet=querySet.filter(name__icontains=name)
+        if active_user:
+            querySet=querySet.filter(is_active=active_user)
         if contract_start:
             querySet=querySet.filter(roles__contains=contract_start)
         if contract_end:
