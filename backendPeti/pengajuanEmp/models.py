@@ -1,6 +1,7 @@
 from django.db import models
 from django import utils
 from userapp.models import User
+import hashlib
 
 class Petitions(models.Model):
     employee_id = models.CharField(max_length=40, null=True)
@@ -49,8 +50,14 @@ class PetitionsCalendar(models.Model):
     reason = models.TextField(null=True)
     start = models.DateTimeField(null=True)
     end = models.DateTimeField(null=True)
-    
+    color = models.CharField(max_length=10, null=True, blank=True)
    
+    def save(self, *args, **kwargs):
+        hash_object = hashlib.md5(self.title.encode())
+        hash_hex = hash_object.hexdigest()
+        hex_color = hash_hex[:6]
+        self.color = '#'+hex_color
+        super(PetitionsCalendar, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.title
