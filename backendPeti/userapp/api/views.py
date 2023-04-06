@@ -198,7 +198,7 @@ class UserSearchContract(APIView):
         return users
     
     def get(self, request, *args, **kwargs):
-        querySet = User.objects.all().order_by('name')
+        querySet = User.objects.all().order_by('contract_end')
         
         name = self.request.query_params.get('name', None)
         contract_start = self.request.query_params.get('contract_start', None)
