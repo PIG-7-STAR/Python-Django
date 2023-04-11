@@ -188,7 +188,21 @@ class UserSearch(APIView):
 
         serializer = UserDetailsSerializer(querySet, many=True)
 
-        return Response(serializer.data) 
+        return Response(serializer.data)
+
+class UserProfile(APIView):
+
+    def get(self, request, *args, **kwargs):
+        emp_id = request.user.pk
+        try:
+            profile = User.objects.get(pk=emp_id)
+            
+            serializer = UserDetailsSerializer(profile)
+            
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            # Tangani jika profil pengguna tidak ditemukan
+            return Response({'message': 'Profil pengguna tidak ditemukan'}, status=404)
 
 class UserSearchContract(APIView):
     serializer_class = UserContractSerializers
