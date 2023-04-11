@@ -150,6 +150,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         employee_id = request.user.pk
+        employee_sc = request.user.sisa_cuti
 
         pengajuan_data = request.data
         start_dat = pengajuan_data.get("start_date")
@@ -160,22 +161,24 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         permiss = pengajuan_data.get("permission_type")
         fromH = pengajuan_data.get("from_hour")
         endH = pengajuan_data.get("end_hour")
+        validator_submiss = employee_sc-juml
         if(permiss != 'lembur'):
             if(reason != '' and  juml != ''):
                 if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
-
-                    new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
+                    if(validator_submiss < 0 and permiss != 'sakit'):
+                        ressPon = Response({"message" : "Sisa Cuti Anda tidak mencukupi"}, status=status.HTTP_400_BAD_REQUEST)  
+                    else:
+                        new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
                                                               reason=pengajuan_data['reason'],  jumlah_hari=pengajuan_data['jumlah_hari'], 
                                                               start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'],
                             )
-                    serializer = SubmissionSerializer(new_pengajuan)
-                    response_message={"message" : "Berhasil Membuat Pengajuan",
-                                    "data": serializer.data
-                    }
-                  
-                    new_pengajuan.save()
-                    ressPon = Response(response_message)
-                
+                        serializer = SubmissionSerializer(new_pengajuan)
+                        response_message={"message" : "Berhasil Membuat Pengajuan",
+                                        "data": serializer.data
+                        }
+                    
+                        new_pengajuan.save()
+                        ressPon = Response(response_message)    
                 else:
                     ressPon = Response({"message" : "Data tanggal akhir dan tanggal kembali masuk tidak boleh kurang dari tanggal awal"}, status=status.HTTP_400_BAD_REQUEST)  
             else:
@@ -239,8 +242,6 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                                 permission_type=data['permission_type'], reason=data['reason'],
                                 start=datetime.strptime(data['start_date'], '%Y-%m-%d') , end=datetime.strptime(data['end_date'], '%Y-%m-%d'))
                             users_obj = User.objects.get(id=data["employee"])
-                            print(users_obj)
-                            # data_user = request.data
                             users_obj.sisa_cuti = int(users_obj.sisa_cuti) - int(submission_obj.jumlah_hari)
                             users_obj.save()
                             submiss_object.save()
@@ -256,20 +257,27 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
     
     def destroy(self, request, *args, **kwargs):
         logedin_user = request.user
+        pengajuan = self.get_object()
 
-        if(logedin_user.roles == "hrd"):
-            pengajuan = self.get_object()
-            if(pengajuan.permission_type == 'cuti' or pengajuan.permission_type == 'ijin'):
-                if(pengajuan.permission_pil == 'disetujui'):
+        if(pengajuan.permission_pil == 'disetujui'):
+            if(logedin_user.roles == "hrd"):
+                if(pengajuan.permission_type == 'cuti' or pengajuan.permission_type == 'ijin'):
                     users_obj = User.objects.get(id=pengajuan.employee.pk)
                     users_obj.sisa_cuti = int(users_obj.sisa_cuti) + int(pengajuan.jumlah_hari)
                     users_obj.save()
-            pengajuan.delete()
-            response_message={"message" : "Berhasil menghapus pengajuan"}
+                pengajuan.delete()
+                response_message = Response({"message" : "Berhasil menghapus pengajuan"}, status=status.HTTP_200_OK)  
+            else:
+                response_message = Response({"message" : "Hanya HRD yang diperbolehkan menghapus"}, status=status.HTTP_400_BAD_REQUEST)  
         else:
-            response_message={"message" : "Hanya HRD yang diperbolehkan menghapus"}
+            if(logedin_user.pk == pengajuan.employee.pk):
+                if(pengajuan.permission_pil == None):
+                    pengajuan.delete()
+                    response_message = Response({"message" : "Berhasil menghapus pengajuan"}, status=status.HTTP_200_OK)  
+                else:
+                    response_message = Response({"message" : "Tidak dapat menghapus pengajuan"}, status=status.HTTP_400_BAD_REQUEST)  
 
-        return Response(response_message)
+        return response_message
 
 
 class SubmissionCalendarAPI(viewsets.ModelViewSet):
