@@ -156,12 +156,13 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         edrd = pengajuan_data.get("end_date")
         rdrd = pengajuan_data.get("return_date")
         reason = pengajuan_data.get("reason")
-        divisi = pengajuan_data.get("division")
         juml = pengajuan_data.get("jumlah_hari")
         permiss = pengajuan_data.get("permission_type")
-        if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
-            if(reason != '' and divisi != '' and juml != ''):
-                if(permiss != 'lembur'):
+        fromH = pengajuan_data.get("from_hour")
+        endH = pengajuan_data.get("end_hour")
+        if(permiss != 'lembur'):
+            if(reason != '' and  juml != ''):
+                if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
 
                     new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
                                                               reason=pengajuan_data['reason'],  jumlah_hari=pengajuan_data['jumlah_hari'], 
@@ -176,21 +177,24 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                     ressPon = Response(response_message)
                 
                 else:
-                    new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
-                            reason=pengajuan_data['reason'], start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], 
-                            from_hour=pengajuan_data['from_hour'], end_hour=pengajuan_data['end_hour'], 
-                            
-                            )
-                    serializer = SubmissionSerializer(new_pengajuan)
-                    response_message={"message" : "Berhasil Membuat Pengajuan",
-                                    "data": serializer.data
-                    }
-                    new_pengajuan.save()
-                    ressPon = Response(response_message)
+                    ressPon = Response({"message" : "Data tanggal akhir dan tanggal kembali masuk tidak boleh kurang dari tanggal awal"}, status=status.HTTP_400_BAD_REQUEST)  
             else:
                 ressPon = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)  
         else:
-            ressPon = Response({"message" : "Data tanggal akhir dan tanggal kembali masuk tidak boleh kurang dari tanggal awal"}, status=status.HTTP_400_BAD_REQUEST)  
+            if(reason != '' and fromH != None and endH != None):
+                new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
+                        reason=pengajuan_data['reason'], start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], 
+                        from_hour=pengajuan_data['from_hour'], end_hour=pengajuan_data['end_hour'], 
+                        
+                        )
+                serializer = SubmissionSerializer(new_pengajuan)
+                response_message={"message" : "Berhasil Membuat Pengajuan",
+                                "data": serializer.data
+                }
+                new_pengajuan.save()
+                ressPon = Response(response_message)
+            else:
+                ressPon = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)  
         
         return ressPon
     
