@@ -183,7 +183,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         else:
             if(reason != '' and fromH != None and endH != None):
                 new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
-                        reason=pengajuan_data['reason'], start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], 
+                        reason=pengajuan_data['reason'], start_date=pengajuan_data['start_date'], end_date=pengajuan_data['start_date'], 
                         from_hour=pengajuan_data['from_hour'], end_hour=pengajuan_data['end_hour'], 
                         
                         )
