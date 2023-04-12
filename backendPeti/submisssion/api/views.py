@@ -113,18 +113,28 @@ class SubmissionAPIView(APIView):
     
 
 class SubmissionAPIViewID(viewsets.ModelViewSet):
-    serializer_class = SubmissionSerializer
-
+    
+    def get_serializer_class(self):
+        user = self.request.user
+        if user.roles == 'karyawan':
+            return SubmissionEmployeeSerializer
+        else:
+            return SubmissionSerializer
+            
     def get_queryset(self):
-        petitions = Submission.objects.all().order_by('-updated_at')
-        employee = self.request.query_params.get('employee', None)
+        users = self.request.user
+        if(users.roles == 'karyawan'):
+            petitions = Submission.objects.all().filter(employee=users.pk).order_by('-updated_at')
+        else:
+            petitions = Submission.objects.all().order_by('-updated_at')
+        employee_name = self.request.query_params.get('employee_name', None)
         permission_type = self.request.query_params.get('permission_type', None)
         permission_pil = self.request.query_params.get('permission_pil', None)
         start_date = self.request.query_params.get('start_date', None)
         end_date = self.request.query_params.get('end_date', None)
 
-        if employee:
-            petitions=petitions.filter(employee__name__contains=employee)
+        if employee_name:
+            petitions=petitions.filter(employee__name__contains=employee_name)
         if end_date:
             petitions=petitions.filter(end_date__contains=end_date)
         if start_date:
@@ -134,20 +144,36 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         if permission_pil:
             petitions=petitions.filter(permission_pil__contains=permission_pil)
 
-        # serializer = SubmissionSerializer(petitions, many=True)
-
-        # return Response(serializer.data) 
         return petitions
     
     def get(self, request, *args, **kwargs):
-        ids = request.query_params["id"]
-        if ids != None:
-                petitions = Submission.objects(id=ids)
-                serializer = SubmissionSerializer(petitions)
+        logedin_user = request.user.roles
+        if(logedin_user == 'karyawan'):
+            querySet = Submission.objects.all().filter(employee = request.user.id).order_by('-updated_at')
         else:
-            pett = self.get_queryset()
-            serr = SubmissionSerializer(pett, many=True)
-        return Response(serializer.data)
+            querySet = Submission.objects.all().order_by('-updated_at')
+        employee = self.request.query_params.get('employee', None)
+        permission_type = self.request.query_params.get('permission_type', None)
+        permission_pil = self.request.query_params.get('permission_pil', None)
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
+
+        if employee:
+            querySet=querySet.filter(employee__name__contains=employee)
+        if end_date:
+            querySet=querySet.filter(end_date__contains=end_date)
+        if start_date:
+            querySet=querySet.filter(start_date__contains=start_date)
+        if permission_type:
+            querySet=querySet.filter(permission_type__contains=permission_type)
+        if permission_pil:
+            querySet=querySet.filter(permission_pil__contains=permission_pil)
+
+        if(logedin_user == 'karyawan'):
+            serializer = SubmissionEmployeeSerializer(querySet, many=True)
+        else:
+            serializer = SubmissionSerializer(querySet, many=True)
+        return Response(serializer.data) 
     
     
     def create(self, request, *args, **kwargs):
@@ -163,7 +189,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         permiss = pengajuan_data.get("permission_type")
         fromH = pengajuan_data.get("from_hour")
         endH = pengajuan_data.get("end_hour")
-        validator_submiss = employee_sc-juml
+        validator_submiss = int(employee_sc)-int(juml)
         if(permiss != 'lembur'):
             if(reason != '' and  juml != ''):
                 if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
@@ -184,7 +210,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                 else:
                     ressPon = Response({"message" : "Data tanggal akhir dan tanggal kembali masuk tidak boleh kurang dari tanggal awal"}, status=status.HTTP_400_BAD_REQUEST)  
             else:
-                ressPon = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)  
+                ressPon = Response({"message" : "Isi Semua datas"}, status=status.HTTP_400_BAD_REQUEST)  
         else:
             if(reason != '' and fromH != None and endH != None):
                 new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
