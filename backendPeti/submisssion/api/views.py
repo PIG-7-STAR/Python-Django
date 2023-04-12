@@ -5,7 +5,7 @@ from rest_framework import status
 from presenceEmployee.models import PresenceEmployee
 
 from userapp.models import User
-from .serializer import SubmissionSerializer, SubmissionCutiCalendarSerializer
+from .serializer import SubmissionEmployeeSerializer, SubmissionSerializer, SubmissionCutiCalendarSerializer
 from submisssion.models import Submission, CalendarCutiSubmission
 from datetime import datetime
 
@@ -39,8 +39,10 @@ class SubmissionAPIView(APIView):
         if permission_pil:
             querySet=querySet.filter(permission_pil__contains=permission_pil)
 
-        serializer = SubmissionSerializer(querySet, many=True)
-
+        if(logedin_user == 'karyawan'):
+            serializer = SubmissionEmployeeSerializer(querySet, many=True)
+        else:
+            serializer = SubmissionSerializer(querySet, many=True)
         return Response(serializer.data) 
     
     def post(self, request, *args, **kwargs):
