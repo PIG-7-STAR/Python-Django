@@ -189,10 +189,10 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         permiss = pengajuan_data.get("permission_type")
         fromH = pengajuan_data.get("from_hour")
         endH = pengajuan_data.get("end_hour")
-        validator_submiss = int(employee_sc)-int(juml)
         if(permiss != 'lembur'):
             if(reason != '' and  juml != ''):
                 if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
+                    validator_submiss = int(employee_sc)-int(juml)
                     if(validator_submiss < 0 and permiss != 'sakit'):
                         ressPon = Response({"message" : "Sisa Cuti Anda tidak mencukupi"}, status=status.HTTP_400_BAD_REQUEST)  
                     else:
