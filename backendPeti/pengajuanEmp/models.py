@@ -53,10 +53,14 @@ class PetitionsCalendar(models.Model):
     color = models.CharField(max_length=10, null=True, blank=True)
    
     def save(self, *args, **kwargs):
-        hash_object = hashlib.md5(self.title.encode())
-        hash_hex = hash_object.hexdigest()
-        hex_color = hash_hex[:6]
-        self.color = '#'+hex_color
+        hash_title = hashlib.md5(self.title.encode())
+        hash_division = hashlib.md5(self.division.encode())
+        hex_div = hash_division.hexdigest()
+        hash_hex = hash_title.hexdigest()
+        dig2 = hash_hex[2:4]
+        dig6 = hex_div[4:6]
+        dig4 = hash_hex[5:7]
+        self.color = '#'+dig2+dig4+dig6
         super(PetitionsCalendar, self).save(*args, **kwargs)
 
     def __str__(self):
