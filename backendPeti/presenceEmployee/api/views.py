@@ -241,8 +241,12 @@ class TopPresenceAPIView(APIView):
 
 class PresenceStatistik(APIView):
     def get(self, request, year):
+        users = self.request.user
         user_dict = {}
-        presences = PresenceEmployee.objects.filter(working_date__year=year)
+        if(users.roles == 'karyawan'):
+            presences = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=users.pk)
+        else:
+            presences = PresenceEmployee.objects.filter(working_date__year=year)
         for presence in presences:
             user = presence.employee
             month = presence.working_date.strftime('%B')
@@ -258,17 +262,28 @@ class PresenceStatistik(APIView):
                         user_dict[user][month] += 0
 
         total_per_month = {}
+        total_asint = {}
         for user, months in user_dict.items():
             for month, working_hour in months.items():
                 if month not in total_per_month:
                     total_per_month[month] = working_hour
+                    total_asint[month] = working_hour
                 else:
                     if(working_hour != None):
                         total_per_month[month] += working_hour
+                        total_asint[month] += working_hour
                     else:
                         total_per_month[month] += 0
-        
-        return Response({'year': year, 'data': total_per_month})
+                        total_asint[month] += 0
+
+        # Mengonversi total_per_month dari menit ke jam:menit
+        for month, working_hour in total_per_month.items():
+            jam = working_hour // 60
+            menit = working_hour % 60
+            total_per_month[month] = f"{jam} jam {menit} menit"
+            total_asint[month] = jam
+
+        return Response({'year': year, 'data': total_per_month, 'chart':total_asint})
 
 class PresenceStatistikUser(APIView):
     def get(self, request, year):
