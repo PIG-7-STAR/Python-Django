@@ -1,13 +1,21 @@
+from django.conf import settings
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from presenceEmployee.models import PresenceEmployee
+from submisssion.api.filters import filterhr, filteruser
+from submisssion.utils.api_notification import sendNotificationEmployee, sendNotificationHR
 
 from userapp.models import User
 from .serializer import SubmissionEmployeeSerializer, SubmissionSerializer, SubmissionCutiCalendarSerializer
 from submisssion.models import Submission, CalendarCutiSubmission
 from datetime import datetime
+
+from rest_framework.decorators import api_view
+import requests
+
 
 class SubmissionAPIView(APIView):
     serializer_class = SubmissionSerializer
@@ -177,6 +185,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
     
     
     def create(self, request, *args, **kwargs):
+
         employee_id = request.user.pk
         employee_sc = request.user.sisa_cuti
 
@@ -189,6 +198,9 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         permiss = pengajuan_data.get("permission_type")
         fromH = pengajuan_data.get("from_hour")
         endH = pengajuan_data.get("end_hour")
+        
+        responses = sendNotificationEmployee(permission=permiss, jumlahHari=juml, startDate=start_dat)
+
         if(permiss != 'lembur'):
             if(reason != '' and  juml != ''):
                 if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
@@ -202,7 +214,8 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                             )
                         serializer = SubmissionSerializer(new_pengajuan)
                         response_message={"message" : "Berhasil Membuat Pengajuan",
-                                        "data": serializer.data
+                                        "data": serializer.data, 
+                                        'res' : responses.status_code
                         }
                     
                         new_pengajuan.save()
@@ -220,7 +233,8 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                         )
                 serializer = SubmissionSerializer(new_pengajuan)
                 response_message={"message" : "Berhasil Membuat Pengajuan",
-                                "data": serializer.data
+                                "data": serializer.data,
+                                 'res' : responses.status_code
                 }
                 new_pengajuan.save()
                 ressPon = Response(response_message)
@@ -236,6 +250,10 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
             submission_obj = self.get_object()
             data = request.data
 
+            permiss = submission_obj.permission_type = data['permission_type']
+            juml =  submission_obj.jumlah_hari = data['jumlah_hari']
+            start_dat = submission_obj.start_date = data['start_date']
+
             employee = User.objects.get(id=data["employee"])
 
             submission_obj.employee = employee
@@ -245,6 +263,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
             submission_obj.end_date = data['end_date']
             submission_obj.return_date = data['return_date']
             submission_obj.jumlah_hari = data['jumlah_hari']
+
             if(submission_obj.from_hour != None and submission_obj.end_hour != None and submission_obj.permission_type == 'lembur'):
                 submission_obj.from_hour = data['from_hour']
                 submission_obj.end_hour = data['end_hour']
@@ -261,12 +280,12 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                 elif(submission_obj.permission_pil == 'disetujui'):
                     if(submission_obj.status_submission == False):
                         if(submission_obj.permission_type == 'lembur'):
-                            new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=data["employee"]), working_date= submission_obj.start_date,
+                            new_presen = PresenceEmployee.objects.create(employee=employee, working_date= submission_obj.start_date,
                                                             lembur_end=data['end_hour'], lembur_start=data['from_hour']
                                                             )
                             new_presen.save()
                         elif(submission_obj.permission_type == 'cuti'):
-                            submiss_object = CalendarCutiSubmission.objects.create(employee=User.objects.get(id=data["employee"]), 
+                            submiss_object = CalendarCutiSubmission.objects.create(employee=employee, 
                                 permission_type=data['permission_type'], reason=data['reason'],
                                 start=datetime.strptime(data['start_date'], '%Y-%m-%d') , end=datetime.strptime(data['end_date'], '%Y-%m-%d'))
                             users_obj = User.objects.get(id=data["employee"])
@@ -276,7 +295,10 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
 
             submission_obj.save()
             serializers = SubmissionSerializer(submission_obj)
+            responses = sendNotificationHR(permission=permiss, jumlahHari=juml, startDate=start_dat, username=employee.username, name=employee.name)
+
             res =  Response({"message" : "Berhasil",
+                             "response" : responses.status_code, 
                                 "data": serializers.data})
         else:
             res = Response({"message" : "Anda tidak dapat melakukannya perizinan ini. silahkan hubungi hrd atau atasan anda",
@@ -351,3 +373,49 @@ class SubmissionCalendarAPI(viewsets.ModelViewSet):
             response_message={"message" : "data tanggal akhir tidak boleh kurang dari tanggal awal"}
 
         return Response(response_message)
+    
+@api_view(['POST'])
+def send_notification_api(request):
+
+    user_type = request.user.roles
+    if(user_type == 'karyawan'):
+        user_filter = filterhr(atasan='atasan', hrd='hrd')
+    else:
+        username = request.user.username
+        name = request.user.name
+        user_filter = filteruser(username=username, name=name)
+
+    try:
+        title = request.data['title']
+        message = request.data['message']
+        url = 'https://onesignal.com/api/v1/notifications'
+        
+        payload = {
+            'app_id': settings.ONESIGNAL_APP_ID,
+            'contents': {'en': message},
+            'headings': {'en': title},
+            'included_segments': ['Active Users'],
+            "filters": user_filter,
+        }
+
+        headers = {
+            "accept": "application/json",
+            "Authorization": "Basic "+settings.ONESIGNAL_REST_API_KEY,
+            "content-type": "application/json"
+        }
+
+        response = requests.post(url, json=payload, headers=headers)
+
+        if response.status_code == 200:
+            print(response)
+            return Response({
+                "message" : "Notifikasi Berhasil dikirim",
+                "data" : {
+                    "title_notification" : title,
+                    "message_notification" : message,
+                }}, status=status.HTTP_200_OK)  
+        else:
+            return HttpResponse('Gagal mengirim notifikasi')
+
+    except Exception as e:
+        return HttpResponse(str(e), status=status.HTTP_400_BAD_REQUEST)

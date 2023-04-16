@@ -60,10 +60,13 @@ INSTALLED_APPS = [
     'calendarDash',
     'presenceEmployee',
     'noteHR',
-    'submisssion'
+    'submisssion',
 ]
 
 SITE_ID = 1
+
+ONESIGNAL_APP_ID = 'f05b171e-3659-45a0-b795-d3dd24a38f6e'
+ONESIGNAL_REST_API_KEY = 'ZTAyYzExMjEtNGNhMS00OTM2LThjNDUtYTNlNGFlOGZlNGQ0'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -75,7 +78,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    "django.middleware.common.CommonMiddleware",    
 ]
 
 ROOT_URLCONF = 'backendPeti.urls'
@@ -104,9 +107,6 @@ CORS_ORIGIN_WHITELIST = [
     # "http://app.localhost:3000",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://eirene.netlify.app",
-    "https://form-perizinan.netlify.app",
-    "https://hrds.netlify.app",
     "https://sdm-app.netlify.app"
 
 ]
