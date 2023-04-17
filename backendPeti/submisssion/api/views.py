@@ -295,7 +295,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
 
             submission_obj.save()
             serializers = SubmissionSerializer(submission_obj)
-            responses = sendNotificationHR(permission=permiss, jumlahHari=juml, startDate=start_dat, username=employee.username, name=employee.name)
+            responses = sendNotificationHR(permission=permiss, jumlahHari=juml, startDate=start_dat, employee_id=employee.pk, name=employee.name)
 
             res =  Response({"message" : "Berhasil",
                              "response" : responses.status_code, 
