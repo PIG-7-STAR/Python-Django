@@ -27,13 +27,13 @@ def sendNotificationEmployee(permission, jumlahHari, startDate ):
     responses = requests.post(url, json=payload, headers=headers)
     return responses
 
-def sendNotificationHR(permission, jumlahHari, startDate, employee_id, name ):
+def sendNotificationHR(permission, jumlahHari, startDate, employee_id ):
     if(permission != 'lembur'):
             messages = f'Update terbaru Pengajuan untuk perizinan {permission} selama {jumlahHari} hari '
     else:
         messages = f'Update terbaru untuk Pengajuan {permission} pada tanggal {formatDate(startDate)}'
     
-    user_filter = filteruser(pk=employee_id, name=name)
+    user_filter = filteruser(pk=employee_id)
     url = 'https://onesignal.com/api/v1/notifications'
     payload = {
         'app_id': settings.ONESIGNAL_APP_ID,
