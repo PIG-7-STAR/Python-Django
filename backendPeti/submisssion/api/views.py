@@ -446,10 +446,22 @@ class SubmissionIzin(APIView):
         izin = pengajuan.filter(Q(permission_type='izin') & Q(permission_pil='disetujui')).count()
         lembur = pengajuan.filter(Q(permission_type='lembur') & Q(permission_pil='disetujui')).count()
 
-        response_data = {
-            'cuti': cuti,
-            'sakit': sakit,
-            'izin': izin,
-            'lembur': lembur
-        }
-        return Response(response_data, status=200)
+        response_data = [
+            {
+                "perizinan": "Cuti",
+                "value": cuti
+            },
+            {
+                "perizinan": "Sakit",
+                "value": sakit
+            },
+            {
+                "perizinan": "Izin",
+                "value": izin
+            },
+            {
+                "perizinan": "Lembur",
+                "value": lembur
+            },
+        ]
+        return Response({"data" : response_data}, status=200)
