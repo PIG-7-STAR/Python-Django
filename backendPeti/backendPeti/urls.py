@@ -5,7 +5,7 @@ from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIVi
 from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView
 from calendarDash.api.views import WeekTotals
 from presenceEmployee.api.views import PresenceAPIAnalisis, PresenceAPICompare, PresenceSearch, TopPresenceAPIView, PresenceStatistik, PresenceStatistikUser
-from submisssion.api.views import    send_notification_api
+from submisssion.api.views import    SubmissionIzin, send_notification_api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,17 +39,19 @@ urlpatterns = [
     path('api/presence/employee/compare', PresenceAPICompare.as_view()),
     path('api/presence/employee/analysis/', PresenceAPIAnalisis.as_view()),
     path('api/presence/total-day/', TopPresenceAPIView.as_view()),
-    path('api/presence/<int:year>/', PresenceStatistik.as_view()),
-    path('api/presence/employee/<int:year>/', PresenceStatistikUser.as_view()),
+    
 
     path('api/note/', include('noteHR.api.urls')),
 
     path('api/dashboard/', include('calendarDash.api.urls')),
     path('api/dashboard/week-of', WeekTotals.as_view()),
+    path('api/dashboard/presence-statistik/<int:year>/', PresenceStatistik.as_view()),
+    path('api/dashboard/employee-statistik/<int:year>/', PresenceStatistikUser.as_view()),
+    path('api/dashboard/employee-permission/', SubmissionIzin.as_view()),
+    path('api/employee/best_of/', UserWorkHourAPIView.as_view()),
 
     path('api/submission/', include('submisssion.api.urls')),
     path('api/send-notification/', send_notification_api, name='send_notification'),
 
-    path('api/employee/best_of/', UserWorkHourAPIView.as_view()),
 
 ]

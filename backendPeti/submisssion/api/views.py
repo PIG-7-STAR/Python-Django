@@ -8,6 +8,7 @@ from rest_framework import status
 from presenceEmployee.models import PresenceEmployee
 from submisssion.api.filters import filterhr, filteruser
 from submisssion.utils.api_notification import sendNotificationEmployee, sendNotificationHR
+from django.db.models import Q
 
 from userapp.models import User
 from .serializer import SubmissionEmployeeSerializer, SubmissionSerializer, SubmissionCutiCalendarSerializer
@@ -420,3 +421,35 @@ def send_notification_api(request):
 
     except Exception as e:
         return HttpResponse(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+class SubmissionIzin(APIView):
+    def get(self, request, *args, **kwargs):
+        users = request.user
+
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        
+        years = datetime.now().year
+        today = datetime.now().strftime('%Y-%m-%d')
+
+        if start_date is None:
+            start_date = str(years)+'-01-01'
+        if end_date is None:
+            end_date = today
+        
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+        pengajuan = Submission.objects.filter(Q(employee_id=users.pk) & Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
+        cuti = pengajuan.filter(Q(permission_type='cuti') & Q(permission_pil='disetujui')).count()
+        sakit = pengajuan.filter(Q(permission_type='sakit') & Q(permission_pil='disetujui')).count()
+        izin = pengajuan.filter(Q(permission_type='izin') & Q(permission_pil='disetujui')).count()
+        lembur = pengajuan.filter(Q(permission_type='lembur') & Q(permission_pil='disetujui')).count()
+
+        response_data = {
+            'cuti': cuti,
+            'sakit': sakit,
+            'izin': izin,
+            'lembur': lembur
+        }
+        return Response(response_data, status=200)

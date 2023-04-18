@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.conf import settings
 import requests
 from submisssion.api.filters import filterhr, filteruser, formatDate
@@ -49,3 +50,9 @@ def sendNotificationHR(permission, jumlahHari, startDate, employee_id ):
 
     responses = requests.post(url, json=payload, headers=headers)
     return responses
+
+
+def to_365_years(time_today):
+    today = datetime.strptime(time_today, '%Y-%m-%d')
+    to_365 = today + timedelta(days=365)
+    return to_365.strftime('%Y-%m-%d')
