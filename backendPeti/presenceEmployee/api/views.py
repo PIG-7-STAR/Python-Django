@@ -291,7 +291,10 @@ class PresenceStatistik(APIView):
             total_per_month[month] = f"{jam} jam {menit} menit"
             total_asint[month] = jam
 
-        return Response({'year': year, 'data': total_per_month, 'chart':total_asint})
+        # Create a list of dictionaries with "month" as key and "value" as value
+        chart_data = [{"month": month, "value": value} for month, value in total_asint.items()]
+
+        return Response({'year': year, 'data': total_per_month, 'chart': chart_data})
 
 class PresenceStatistikUser(APIView):
     def get(self, request, year):
