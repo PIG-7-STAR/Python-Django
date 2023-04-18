@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 from django.http import HttpResponse
 from rest_framework.views import APIView
@@ -377,13 +378,13 @@ class SubmissionCalendarAPI(viewsets.ModelViewSet):
 @api_view(['POST'])
 def send_notification_api(request):
 
-    user_type = request.user.roles
-    if(user_type == 'karyawan'):
+    user_data = request.user
+    if(user_data.roles == 'karyawan'):
         user_filter = filterhr(atasan='atasan', hrd='hrd')
     else:
-        username = request.user.username
-        name = request.user.name
-        user_filter = filteruser(username=username, name=name)
+        user_id = request.data['user_id']
+        name = request.data['name']
+        user_filter = filteruser(id=user_id, name=name)
 
     try:
         title = request.data['title']
@@ -394,8 +395,8 @@ def send_notification_api(request):
             'app_id': settings.ONESIGNAL_APP_ID,
             'contents': {'en': message},
             'headings': {'en': title},
-            'included_segments': ['Active Users'],
-            "filters": user_filter,
+            'included_segments': ['Active Users', 'Subscribed Users'],
+            "filters": user_filter
         }
 
         headers = {
@@ -404,7 +405,7 @@ def send_notification_api(request):
             "content-type": "application/json"
         }
 
-        response = requests.post(url, json=payload, headers=headers)
+        response = requests.post(url, json=payload, data=json.dumps(payload), headers=headers)
 
         if response.status_code == 200:
             print(response)

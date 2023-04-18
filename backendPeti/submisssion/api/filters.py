@@ -1,16 +1,7 @@
 from datetime import datetime
 
-def filteruser(id, name):
+def filteruser(id):
     filters_to_user = [
-        {
-            "field": "tag",
-            "key": "name",
-            "relation": "=",
-            "value": name
-        },
-        {
-            "operator": "AND"
-        },
         {
             "field": "tag",
             "key": "employeeId",
@@ -23,19 +14,18 @@ def filteruser(id, name):
 def filterhr(hrd, atasan):
     filters_to_hrd = [
         {
-            "field": "tag",
-            "key": "roles",
-            "relation": "=",
-            "value": atasan
-        },
+        "field": "tag", 
+        "key": "employeeRoles", 
+        "relation": "=", 
+        "value": hrd},
         {
-            "operator": "OR"
-        },
+        "operator": "OR"
+        }, 
         {
-            "field": "tag",
-            "key": "roles",
-            "relation": "=",
-            "value": hrd
+        "field": "tag", 
+        "key": "employeeRoles", 
+        "relation": "=", 
+        "value": atasan
         }
     ]
     return filters_to_hrd

@@ -14,7 +14,7 @@ def sendNotificationEmployee(permission, jumlahHari, startDate ):
         'app_id': settings.ONESIGNAL_APP_ID,
         'headings': {'en':  f'Pengajuan {permission}'},
         'contents': {'en': messages},
-        'included_segments': ['Active Users'],
+        'included_segments': ['Active Users', 'Subscribed Users'],
         "filters": user_filter,
     }
     headers = {
