@@ -292,7 +292,7 @@ class PresenceStatistik(APIView):
             total_asint[month] = jam
 
         # Create a list of dictionaries with "month" as key and "value" as value
-        chart_data = [{"month": month, "value": value} for month, value in total_asint.items()]
+        chart_data = [{"month": month, "total_jam": value} for month, value in total_asint.items()]
 
         return Response({'year': year, 'data': total_per_month, 'chart': chart_data})
 
