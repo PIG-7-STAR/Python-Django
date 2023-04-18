@@ -244,7 +244,6 @@ class TopPresenceAPIView(APIView):
         return Response({ 
                          "data" : total_karyawan,
                          "cth" : total_karyawan_all,
-                        #  "total" : mda,
                          })
 
 class PresenceStatistik(APIView):

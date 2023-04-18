@@ -39,7 +39,6 @@ urlpatterns = [
     path('api/presence/employee/compare', PresenceAPICompare.as_view()),
     path('api/presence/employee/analysis/', PresenceAPIAnalisis.as_view()),
     path('api/presence/total-day/', TopPresenceAPIView.as_view()),
-    
 
     path('api/note/', include('noteHR.api.urls')),
 
