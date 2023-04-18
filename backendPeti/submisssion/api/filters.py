@@ -29,7 +29,7 @@ def filterhr(hrd, atasan):
             "value": atasan
         },
         {
-            "operator": "AND"
+            "operator": "OR"
         },
         {
             "field": "tag",
