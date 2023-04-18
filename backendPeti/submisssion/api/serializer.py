@@ -31,10 +31,13 @@ class SubmissionSerializer(serializers.ModelSerializer):
         depth = 1
 
 class SubmissionEmployeeSerializer(serializers.ModelSerializer):
+    employee = UserDetailsSerializer(read_only=True)
+
     class Meta:
         model = Submission
         fields = [
             'id',
+            'employee',
             'permission_type',
             'reason',
             'start_date',
