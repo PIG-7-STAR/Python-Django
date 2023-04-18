@@ -448,20 +448,20 @@ class SubmissionIzin(APIView):
 
         response_data = [
             {
-                "perizinan": "Cuti",
+                "name": "Cuti",
                 "value": cuti
             },
             {
-                "perizinan": "Sakit",
+                "name": "Sakit",
                 "value": sakit
             },
             {
-                "perizinan": "Izin",
+                "name": "Izin",
                 "value": izin
             },
             {
-                "perizinan": "Lembur",
+                "name": "Lembur",
                 "value": lembur
             },
         ]
-        return Response({"data" : response_data}, status=200)
+        return Response(response_data, status=200)
