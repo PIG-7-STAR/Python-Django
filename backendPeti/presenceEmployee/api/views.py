@@ -22,7 +22,11 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        querySet = PresenceEmployee.objects.all().order_by('-id')
+        users = self.request.user
+        if(users.roles == "hrd"):
+            querySet = PresenceEmployee.objects.all().order_by('-id')
+        else:
+            querySet = PresenceEmployee.objects.all().filter(employee=users.pk).order_by('-id')
         employee = self.request.query_params.get('employee', None)
 
         working_date = self.request.query_params.get('working_date', None)
@@ -192,7 +196,11 @@ class PresenceAPIAnalisis(APIView):
         return petitions
 
     def get(self, request, *args, **kwargs):
-        querySet = PresenceEmployee.objects.all().order_by('-working_date')
+        users = request.user
+        if(users.roles == "hrd"):
+            querySet = PresenceEmployee.objects.all().order_by('-working_date')
+        else:
+            querySet = PresenceEmployee.objects.all().filter(employee=users.pk) .order_by('-working_date')
 
         employee = self.request.query_params.get('employee', None)
         working_date = self.request.query_params.get('working_date', None)
