@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def filteruser(username, name):
+def filteruser(id, name):
     filters_to_user = [
         {
             "field": "tag",
@@ -13,9 +13,9 @@ def filteruser(username, name):
         },
         {
             "field": "tag",
-            "key": "username",
+            "key": "employeeId",
             "relation": "=",
-            "value": username
+            "value": id
         }
     ]
     return filters_to_user
