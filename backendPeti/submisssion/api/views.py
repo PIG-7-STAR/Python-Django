@@ -265,7 +265,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
             submission_obj.end_date = data['end_date']
             submission_obj.return_date = data['return_date']
 
-            if(submiss_object.permission_type != 'lembur'):  
+            if(submission_obj.permission_type != 'lembur'):  
                 submission_obj.jumlah_hari = data['jumlah_hari']
             if(submission_obj.from_hour != None and submission_obj.end_hour != None and submission_obj.permission_type == 'lembur'):
                 submission_obj.from_hour = data['from_hour']
