@@ -290,7 +290,6 @@ class PresenceStatistik(APIView):
             total_per_month[month] = f"{jam} jam {menit} menit"
             total_asint[month] = jam
 
-        # Create a list of dictionaries with "month" as key and "value" as value
         chart_data = [{"month": month, "total_jam": value} for month, value in total_asint.items()]
 
         return Response({'year': year, 'data': total_per_month, 'chart': chart_data})
@@ -303,10 +302,13 @@ class PresenceStatistikUser(APIView):
             month = item['month'].strftime("%B")
             username = item['employee__name']
             total_attendance = item['total_attendance']
-            total_working = item['total_working']
+            total_working_minutes = item['total_working']
+            total_working_hours = total_working_minutes // 60
+            total_working_minutes_remainder = total_working_minutes % 60
+            total_working_time = f"{total_working_hours} jam {total_working_minutes_remainder} menit"
             if month in data:
-                data[month].append({'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working})
+                data[month].append({'employee_name': username, 'total_attendance': total_attendance, 'total_workingHour': total_working_time})
             else:
-                data[month] = [{'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working}]
+                data[month] = [{'employee_name': username, 'total_attendance': total_attendance, 'total_workingHour': total_working_time}]
         
         return Response(data)

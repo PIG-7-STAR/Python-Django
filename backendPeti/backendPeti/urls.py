@@ -52,5 +52,4 @@ urlpatterns = [
     path('api/submission/', include('submisssion.api.urls')),
     path('api/send-notification/', send_notification_api, name='send_notification'),
 
-
 ]
