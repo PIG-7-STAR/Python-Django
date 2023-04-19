@@ -306,9 +306,10 @@ class PresenceStatistikUser(APIView):
             total_working_hours = total_working_minutes // 60
             total_working_minutes_remainder = total_working_minutes % 60
             total_working_time = f"{total_working_hours} jam {total_working_minutes_remainder} menit"
+            print(total_working_minutes) 
             if month in data:
-                data[month].append({'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working_hours,'total_workingHour': total_working_time})
+                data[month].append({'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working_time})
             else:
-                data[month] = [{'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working_hours,'total_workingHour': total_working_time}]
+                data[month] = [{'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working_time}]
         
         return Response(data)
