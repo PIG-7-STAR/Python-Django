@@ -300,12 +300,13 @@ class PresenceStatistik(APIView):
 class statistikPreview(APIView):
 
   def get(self, request, year):
-        employee_id = self.request.user.pk
+        employee_id = self.request.user
         data = []
-        for month in range(1, 12):
-            # first_day_of_month = datetime(year, month, 1)
-            # last_day_of_month = datetime(year, month+1, 1) - timedelta(days=1)
-            presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=employee_id).filter(working_date__month=month)
+        for month in range(1, 13):
+            if(employee_id.roles == "karyawan"):
+                presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=employee_id.pk).filter(working_date__month=month)
+            else:
+                presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(working_date__month=month)
             total_working_hour = presence_employee_query.aggregate(Sum('working_hour'))['working_hour__sum'] or 0
             if total_working_hour % 100 >= 60:
                 total_working_hour += 40
