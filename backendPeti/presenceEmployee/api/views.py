@@ -1,9 +1,12 @@
+from calendar import month_name
+from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from presenceEmployee.api.paginationpresence import LargeResultsSetPagination
 from presenceEmployee.models import PresenceEmployee
+from presenceEmployee.utils.utils import calculate_total_duration
 from .serializers import PresenceEmployeeSerializers
 from django.db.models import Count, Sum, Q
 from userapp.models import User
@@ -293,6 +296,24 @@ class PresenceStatistik(APIView):
         chart_data = [{"month": month, "total_jam": value} for month, value in total_asint.items()]
 
         return Response({'year': year, 'data': total_per_month, 'chart': chart_data})
+
+class statistikPreview(APIView):
+
+  def get(self, request, year):
+        employee_id = self.request.user.pk
+        data = []
+        for month in range(1, 12):
+            # first_day_of_month = datetime(year, month, 1)
+            # last_day_of_month = datetime(year, month+1, 1) - timedelta(days=1)
+            presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=employee_id).filter(working_date__month=month)
+            total_working_hour = presence_employee_query.aggregate(Sum('working_hour'))['working_hour__sum'] or 0
+            if total_working_hour % 100 >= 60:
+                total_working_hour += 40
+            data.append({
+                "month": month_name[month],
+                "value": total_working_hour
+            })
+        return Response(data)
 
 class PresenceStatistikUser(APIView):
     def get(self, request, year):

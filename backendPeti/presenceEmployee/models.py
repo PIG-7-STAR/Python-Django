@@ -45,9 +45,6 @@ class PresenceEmployee(models.Model):
             digend = str(self.end_from)
             finnend = digend[slicend]
 
-            ac = int(finnstr)+100
-            ad = int(finnend)+100-40
-
             if(finn > '59'):
                 ef = self.end_from-100+60
                 self.working_hour = (ef - self.start_from)
