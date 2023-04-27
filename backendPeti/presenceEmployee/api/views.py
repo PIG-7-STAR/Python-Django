@@ -305,36 +305,45 @@ class statistikPreview(APIView):
             else:
                 presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(working_date__month=month)
             total_working_hour = presence_employee_query.aggregate(Sum('working_hour'))['working_hour__sum'] or 0
-            if total_working_hour % 100 >= 60:
-                total_working_hour += 40
-            data.append({
-                "month": datetime(year, month, 1).strftime("%b"),
-                "value": total_working_hour
-            })
-        return Response(data)
-
-class statistikPreviewAktual(APIView):
-
-  def get(self, request, year):
-        employee_id = self.request.user
-        data = []
-        for month in range(1, 13):
-            if(employee_id.roles == "karyawan"):
-                presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=employee_id.pk).filter(working_date__month=month)
-            else:
-                presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(working_date__month=month)
-
             total_attendance = presence_employee_query.filter(~Q(working_hour=None)).count()
+            
             if(employee_id.name != "Kunut Catur"):
                 total_hour = 800*total_attendance
             else:
                 total_hour = 900*total_attendance
 
+            if total_working_hour % 100 >= 60:
+                total_working_hour += 40
+
             data.append({
                 "month": datetime(year, month, 1).strftime("%b"),
-                "value": total_hour
+                "value": total_working_hour,
+                "actual_value": total_hour
             })
         return Response(data)
+
+# class statistikPreviewAktual(APIView):
+
+#   def get(self, request, year):
+#         employee_id = self.request.user
+#         data = []
+#         for month in range(1, 13):
+#             if(employee_id.roles == "karyawan"):
+#                 presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=employee_id.pk).filter(working_date__month=month)
+#             else:
+#                 presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(working_date__month=month)
+
+#             total_attendance = presence_employee_query.filter(~Q(working_hour=None)).count()
+#             if(employee_id.name != "Kunut Catur"):
+#                 total_hour = 800*total_attendance
+#             else:
+#                 total_hour = 900*total_attendance
+
+#             data.append({
+#                 "month": datetime(year, month, 1).strftime("%b"),
+#                 "value": total_hour
+#             })
+#         return Response(data)
 
 class PresenceStatistikUser(APIView):
     def get(self, request, year):
