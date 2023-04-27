@@ -70,4 +70,4 @@ class CalendarCutiSubmission(models.Model):
         super(CalendarCutiSubmission, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.employee.name
+        return self.employee
