@@ -1,4 +1,3 @@
-from calendar import month_name
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -9,6 +8,7 @@ from django.db.models import Count, Sum, Q
 from userapp.models import User
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models.functions import TruncMonth
+from datetime import datetime
 
 class PresenceAPIView(APIView):
     serializer_class = PresenceEmployeeSerializers
@@ -308,7 +308,7 @@ class statistikPreview(APIView):
             if total_working_hour % 100 >= 60:
                 total_working_hour += 40
             data.append({
-                "month": month_name[month],
+                "month": datetime(year, month, 1).strftime("%b"),
                 "value": total_working_hour
             })
         return Response(data)
