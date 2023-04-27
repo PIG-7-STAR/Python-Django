@@ -170,11 +170,14 @@ class UserSearch(APIView):
         querySet = User.objects.all().order_by('name')
         
         name = self.request.query_params.get('name', None)
+        active = self.request.query_params.get('active', None)
         roles = self.request.query_params.get('roles', None)
         division = self.request.query_params.get('division', None)
 
         if name:
             querySet=querySet.filter(name__icontains=name)
+        if active:
+            querySet=querySet.filter(is_active=active)
         if roles:
             querySet=querySet.filter(roles__contains=roles)
         if division:

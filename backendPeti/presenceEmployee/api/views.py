@@ -1,12 +1,9 @@
 from calendar import month_name
-from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-from presenceEmployee.api.paginationpresence import LargeResultsSetPagination
 from presenceEmployee.models import PresenceEmployee
-from presenceEmployee.utils.utils import calculate_total_duration
 from .serializers import PresenceEmployeeSerializers
 from django.db.models import Count, Sum, Q
 from userapp.models import User
