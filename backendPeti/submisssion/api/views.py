@@ -447,6 +447,8 @@ class SubmissionIzin(APIView):
         izin = pengajuan.filter(Q(permission_type='izin') & Q(permission_pil='disetujui')).aggregate(Sum('jumlah_hari'))['jumlah_hari__sum'] or 0
         lembur = pengajuan.filter(Q(permission_type='lembur') & Q(permission_pil='disetujui')).aggregate(Sum('lembur_hour'))['lembur_hour__sum'] or 0
 
+        total_lembur_jam = int(lembur/60)
+
         response_data = [
             {
                 "name": "Cuti",
@@ -462,7 +464,7 @@ class SubmissionIzin(APIView):
             },
             {
                 "name": "Lembur",
-                "value": lembur
+                "value": total_lembur_jam
             },
         ]
 
