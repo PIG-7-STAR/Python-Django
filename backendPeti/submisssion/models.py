@@ -60,8 +60,8 @@ class CalendarCutiSubmission(models.Model):
     def save(self, *args, **kwargs):
         self.title = self.employee.name
         hash_title = hashlib.md5(self.title.encode())
-        hash_division = hashlib.md5(self.division.encode())
-        hex_div = hash_division.hexdigest()
+        hash_reason = hashlib.md5(self.reason.encode())
+        hex_div = hash_reason.hexdigest()
         hash_hex = hash_title.hexdigest()
         dig2 = hash_hex[2:4]
         dig6 = hex_div[4:6]
