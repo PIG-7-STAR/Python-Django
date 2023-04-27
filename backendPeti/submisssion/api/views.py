@@ -468,3 +468,21 @@ class SubmissionIzin(APIView):
 
     
         return Response(response_data, status=200)
+    
+
+class CalendarSubmissionView(APIView):
+    serializer_class = SubmissionSerializer
+
+    def get_queryset(self):
+        petitions = CalendarCutiSubmission.objects.all().order_by('-id')
+        return petitions
+    
+    def get(self, request, *args, **kwargs):
+        logedin_user = request.user.roles
+        if(logedin_user == 'karyawan'):
+            querySet = CalendarCutiSubmission.objects.all().filter(employee = request.user.id).order_by('-id')
+        else:
+            querySet = CalendarCutiSubmission.objects.all().order_by('-id')
+
+        serializer = SubmissionCutiCalendarSerializer(querySet, many=True)
+        return Response(serializer.data) 

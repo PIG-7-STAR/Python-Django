@@ -5,7 +5,7 @@ from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIVi
 from userapp.api.views import UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView
 from calendarDash.api.views import WeekTotals
 from presenceEmployee.api.views import PresenceAPIAnalisis, PresenceAPICompare, PresenceSearch, TopPresenceAPIView, PresenceStatistik, PresenceStatistikUser, statistikPreview
-from submisssion.api.views import    SubmissionIzin, send_notification_api
+from submisssion.api.views import    CalendarSubmissionView, SubmissionIzin, send_notification_api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -51,6 +51,8 @@ urlpatterns = [
     path('api/dashboard/preview/<int:year>/', statistikPreview.as_view()),
 
     path('api/submission/', include('submisssion.api.urls')),
+    path('api/submission/calendar', CalendarSubmissionView.as_view()),
+    
     path('api/send-notification/', send_notification_api, name='send_notification'),
 
 ]
