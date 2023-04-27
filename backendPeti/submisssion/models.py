@@ -1,3 +1,4 @@
+import hashlib
 from django.db import models
 from django import utils
 from userapp.models import User
@@ -54,10 +55,19 @@ class CalendarCutiSubmission(models.Model):
     reason = models.TextField(null=True)
     start = models.DateTimeField(null=True)
     end = models.DateTimeField(null=True)
+    color = models.CharField(max_length=10, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.title = self.employee.name
+        hash_title = hashlib.md5(self.title.encode())
+        hash_division = hashlib.md5(self.division.encode())
+        hex_div = hash_division.hexdigest()
+        hash_hex = hash_title.hexdigest()
+        dig2 = hash_hex[2:4]
+        dig6 = hex_div[4:6]
+        dig4 = hash_hex[5:7]
+        self.color = '#'+dig2+dig4+dig6
         super(CalendarCutiSubmission, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.permission_type
+        return self.employee.name
