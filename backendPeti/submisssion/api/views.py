@@ -8,7 +8,7 @@ from rest_framework import status
 from presenceEmployee.models import PresenceEmployee
 from submisssion.api.filters import filterhr, filteruser
 from submisssion.utils.api_notification import sendNotificationEmployee, sendNotificationHR
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 from userapp.models import User
 from .serializer import SubmissionEmployeeSerializer, SubmissionSerializer, SubmissionCutiCalendarSerializer
@@ -442,10 +442,10 @@ class SubmissionIzin(APIView):
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
         pengajuan = Submission.objects.filter(Q(employee_id=users.pk) & Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
-        cuti = pengajuan.filter(Q(permission_type='cuti') & Q(permission_pil='disetujui')).count()
-        sakit = pengajuan.filter(Q(permission_type='sakit') & Q(permission_pil='disetujui')).count()
-        izin = pengajuan.filter(Q(permission_type='izin') & Q(permission_pil='disetujui')).count()
-        lembur = pengajuan.filter(Q(permission_type='lembur') & Q(permission_pil='disetujui')).count()
+        cuti = pengajuan.filter(Q(permission_type='cuti') & Q(permission_pil='disetujui')).aggregate(Sum('jumlah_hari'))['jumlah_hari__sum'] or 0
+        sakit = pengajuan.filter(Q(permission_type='sakit') & Q(permission_pil='disetujui')).aggregate(Sum('jumlah_hari'))['jumlah_hari__sum'] or 0
+        izin = pengajuan.filter(Q(permission_type='izin') & Q(permission_pil='disetujui')).aggregate(Sum('jumlah_hari'))['jumlah_hari__sum'] or 0
+        lembur = pengajuan.filter(Q(permission_type='lembur') & Q(permission_pil='disetujui')).aggregate(Sum('lembur_hour'))['lembur_hour__sum'] or 0
 
         response_data = [
             {
@@ -465,4 +465,6 @@ class SubmissionIzin(APIView):
                 "value": lembur
             },
         ]
+
+    
         return Response(response_data, status=200)
