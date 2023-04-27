@@ -70,5 +70,6 @@ class SubmissionCutiCalendarSerializer(serializers.ModelSerializer):
             "start",
             "end",
             "employee",
+            'color'
         ]
         
