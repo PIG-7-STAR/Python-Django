@@ -250,10 +250,10 @@ class PresenceStatistik(APIView):
     def get(self, request, year):
         users = self.request.user
         user_dict = {}
-        if(users.roles == 'karyawan'):
-            presences = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=users.pk)
-        else:
-            presences = PresenceEmployee.objects.filter(working_date__year=year)
+        # if(users.roles == 'karyawan'):
+        #     presences = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=users.pk)
+        # else:
+        presences = PresenceEmployee.objects.filter(working_date__year=year)
         for presence in presences:
             user = presence.employee
             month = presence.working_date.strftime('%B')

@@ -228,7 +228,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                 ressPon = Response({"message" : "Isi Semua datas"}, status=status.HTTP_400_BAD_REQUEST)  
         else:
             if(reason != '' and fromH != None and endH != None):
-                new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
+                new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], jumlah_hari=1,
                         reason=pengajuan_data['reason'], start_date=pengajuan_data['start_date'], end_date=pengajuan_data['start_date'], 
                         from_hour=pengajuan_data['from_hour'], end_hour=pengajuan_data['end_hour'], 
                         
@@ -247,18 +247,19 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
     
     def update(self, request, *args, **kwargs):
         logged_user = request.user.roles
+        data = request.data
 
         if(logged_user == "hrd" or logged_user == "atasan"):
             submission_obj = self.get_object()
-            data = request.data
 
             permiss = submission_obj.permission_type = data['permission_type']
             juml =  submission_obj.jumlah_hari = data['jumlah_hari']
             start_dat = submission_obj.start_date = data['start_date']
 
-            employee = User.objects.get(id=data["employee"])
+            # employees = User.objects.get(id=data['employee'])
+            employees = User.objects.get(id=data['employee'])
 
-            submission_obj.employee = employee
+            submission_obj.employee = employees
             submission_obj.permission_type = data['permission_type']
             submission_obj.reason = data['reason']
             submission_obj.start_date = data['start_date']
@@ -283,22 +284,22 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                 elif(submission_obj.permission_pil == 'disetujui'):
                     if(submission_obj.status_submission == False):
                         if(submission_obj.permission_type == 'lembur'):
-                            new_presen = PresenceEmployee.objects.create(employee=employee, working_date= submission_obj.start_date,
+                            new_presen = PresenceEmployee.objects.create(employee=employees, working_date= submission_obj.start_date,
                                                             lembur_end=data['end_hour'], lembur_start=data['from_hour']
                                                             )
                             new_presen.save()
                         elif(submission_obj.permission_type == 'cuti'):
-                            submiss_object = CalendarCutiSubmission.objects.create(employee=employee, 
+                            submiss_object = CalendarCutiSubmission.objects.create(employee=employees, 
                                 permission_type=data['permission_type'], reason=data['reason'],
                                 start=datetime.strptime(data['start_date'], '%Y-%m-%d') , end=datetime.strptime(data['end_date'], '%Y-%m-%d'))
-                            users_obj = User.objects.get(id=data["employee"])
+                            users_obj = User.objects.get(id=data['employee'])
                             users_obj.sisa_cuti = int(users_obj.sisa_cuti) - int(submission_obj.jumlah_hari)
                             users_obj.save()
                             submiss_object.save()
 
             submission_obj.save()
             serializers = SubmissionSerializer(submission_obj)
-            responses = sendNotificationHR(permission=permiss, jumlahHari=juml, startDate=start_dat, employee_id=employee.pk)
+            responses = sendNotificationHR(permission=permiss, jumlahHari=juml, startDate=start_dat, employee_id=employees.pk)
 
             res =  Response({"message" : "Berhasil",
                              "response" : responses.status_code, 
