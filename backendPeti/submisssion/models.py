@@ -39,10 +39,9 @@ class Submission(models.Model):
                 self.working_hour_detail = self.lembur_hour/100
             else:
                 self.lembur_hour = calc
-        if(self.permission_pil == 'disetujui'):
+        
+        if(self.permission_pil != None):
             self.status_submission = True
-        elif(self.permission_pil != 'disetujui'):
-            self.status_submission = False
         super(Submission, self).save(*args, **kwargs)
 
     def __str__(self):
