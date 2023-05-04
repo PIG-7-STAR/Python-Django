@@ -120,6 +120,26 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
                                                        end_from=1700, start_from=900, ket=noted
                                                        )
                 new_presen.save()
+            elif(typ == 'sakit'):
+                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
+                                                       end_from=None, start_from=None, ket=typ
+                                                       )
+                new_presen.save()
+            elif(typ == 'izin'):
+                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
+                                                       end_from=None, start_from=None, ket=typ
+                                                       )
+                new_presen.save()   
+            elif(typ == 'cuti'):
+                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
+                                                       end_from=None, start_from=None, ket=typ
+                                                       )
+                users_obj = User.objects.get(id=notes_data['employee'])
+                users_obj.sisa_cuti = int(users_obj.sisa_cuti) - 1
+
+                users_obj.save()
+                new_presen.save()
+            
             serializer = NotesSerializer(new_notes)
             response_message={"message" : "Catatan Berhasil dibuat",
                                 "data": serializer.data

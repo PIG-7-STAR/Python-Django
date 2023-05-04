@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from django.db.models import Count, Q
 from presenceEmployee.models import PresenceEmployee
-from userapp.serializer import UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
+from userapp.serializer import UserBirthdaySerializers, UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
 from userapp.models import User, UserRoles, UserDivision
 from django.db.models import Sum
 from attendanceEmployee.models import AttendanceEmployee
@@ -186,6 +186,15 @@ class UserSearch(APIView):
         serializer = UserDetailsSerializer(querySet, many=True)
 
         return Response(serializer.data)
+
+class EmployeeBirth(APIView):
+    def get(self, request, month):
+        try:
+            users = User.objects.filter(birth_date__month=month)
+            serializer = UserBirthdaySerializers(users, many=True)
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 class UserProfile(APIView):
 

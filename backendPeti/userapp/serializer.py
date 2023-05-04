@@ -75,6 +75,11 @@ class UserContractSerializers(serializers.ModelSerializer):
         model = User
         fields = ('pk','employee_code', 'name', 'division', 'contract_start', 'contract_end', 'contract_time', 'is_active' )
 
+class UserBirthdaySerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('pk','employee_code', 'name', 'division', 'birth_date' )
+
 class UserRolesSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserRoles
