@@ -120,6 +120,11 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
                                                        end_from=1700, start_from=900, ket=noted
                                                        )
                 new_presen.save()
+            elif(typ == 'tidak masuk'):
+                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
+                                                       end_from=None, start_from=None, ket=typ
+                                                       )
+                new_presen.save()
             elif(typ == 'sakit'):
                 new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
                                                        end_from=None, start_from=None, ket=typ
