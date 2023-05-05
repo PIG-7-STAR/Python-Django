@@ -5,9 +5,9 @@ from submisssion.api.filters import filterhr, filteruser, formatDate
 
 def sendNotificationEmployee(permission, jumlahHari, startDate ):
     if(permission != 'lembur'):
-            messages = f'Pengajuan perizinan untuk {permission} selama {jumlahHari} hari'
+        messages = f'Pengajuan perizinan {permission} selama {jumlahHari} hari pada tanggal {formatDate(startDate)}'
     else:
-        messages = f'Pengajuan untuk {permission} pada tanggal {formatDate(startDate)}'
+        messages = f'Pengajuan {permission} pada tanggal {formatDate(startDate)}'
     
     user_filter = filterhr(atasan='atasan', hrd='hrd')
     url = 'https://onesignal.com/api/v1/notifications'
@@ -29,7 +29,7 @@ def sendNotificationEmployee(permission, jumlahHari, startDate ):
 
 def sendNotificationHR(permission, jumlahHari, startDate, employee_id ):
     if(permission != 'lembur'):
-            messages = f'Update terbaru Pengajuan untuk perizinan {permission} selama {jumlahHari} hari '
+        messages = f'Update terbaru untuk Pengajuan perizinan {permission} selama {jumlahHari} hari '
     else:
         messages = f'Update terbaru untuk Pengajuan {permission} pada tanggal {formatDate(startDate)}'
     
