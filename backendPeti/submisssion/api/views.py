@@ -320,16 +320,22 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                     users_obj.sisa_cuti = int(users_obj.sisa_cuti) + int(pengajuan.jumlah_hari)
                     users_obj.save()
                 pengajuan.delete()
-                response_message = Response({"message" : "Berhasil menghapus pengajuan"}, status=status.HTTP_200_OK)  
+                response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
             else:
                 response_message = Response({"message" : "Hanya HRD yang diperbolehkan menghapus"}, status=status.HTTP_400_BAD_REQUEST)  
+        elif(pengajuan.permission_pil != 'disetujui'):
+            if(logedin_user.roles == "hrd"):
+                pengajuan.delete()
+                response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
         else:
             if(logedin_user.pk == pengajuan.employee.pk):
                 if(pengajuan.permission_pil == None):
                     pengajuan.delete()
-                    response_message = Response({"message" : "Berhasil menghapus pengajuan"}, status=status.HTTP_200_OK)  
+                    response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
                 else:
-                    response_message = Response({"message" : "Tidak dapat menghapus pengajuan"}, status=status.HTTP_400_BAD_REQUEST)  
+                    response_message = Response({"message" : "Tidak dapat menghapus pengajuan karena sudah diberikan perizinan oleh atasan/hrd"}, status=status.HTTP_400_BAD_REQUEST)  
+            else:
+                response_message = Response({"message" : "Tidak dapat dihapus, hanya yang bersangkutan atau atasan dari perusahaan yang dapat menghapusnya"}, status=status.HTTP_400_BAD_REQUEST)  
 
         return response_message
 
