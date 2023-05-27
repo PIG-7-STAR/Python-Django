@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.db.models import Count, Q
+from calendarDash.models import CalendarDashHRD
 from presenceEmployee.models import PresenceEmployee
 from userapp.serializer import UserBirthdaySerializers, UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
 from userapp.models import User, UserRoles, UserDivision
@@ -14,6 +15,7 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
+from userapp.utils.utilsfunction import get_weekday_count
 
 class UserApiView(APIView):
     serializer_class = UserDetailsSerializer
@@ -88,8 +90,7 @@ class UserDivisionView(viewsets.ModelViewSet):
 class UserTotal(APIView):
     serializer_class = UserTotalDataIOSerializers
 
-    def get(self, request):
-        # total_karyawan = User.objects.values('is_active').annotate(count=Count('is_active')).order_by('pk')
+    def get(self, request, year):
         userAct = User.objects.all()
         total_karyawan_all = userAct.count()
         total_karyawan = User.objects.aggregate(
@@ -97,12 +98,24 @@ class UserTotal(APIView):
             inactive_employee=Count("is_active", filter=Q(is_active=False)),
         )
 
-        case = AttendanceEmployee.objects.all().aggregate(Sum('working_hour'))
+        # countPresence = PresenceEmployee.objects.exclude(working_hour=None).count()
+        countPresence = PresenceEmployee.objects.aggregate(
+            presence=Count("working_hour", filter=~Q(working_hour=None)),
+            actual_presence=Count(
+                "lembur_hour",
+                filter=Q(lembur_hour=None) & Q(working_hour=None) & Q(ket="libur")
+            )
+        )
 
-        return Response({"Message" : "List Employee", 
+        weekday_count = get_weekday_count(year)
+        weekend_national_count = CalendarDashHRD.objects.exclude(type_day='weekday').count()
+        total_day = weekday_count-weekend_national_count
+
+        return Response({
+                         "working_day": total_day,
                          "employee" : total_karyawan,
+                         "total_attendance" : countPresence,
                          "total_employee" : total_karyawan_all,
-                         "total_work_hour_all" : case,
                          })
 
 class UserWorkHourAPIView(APIView):

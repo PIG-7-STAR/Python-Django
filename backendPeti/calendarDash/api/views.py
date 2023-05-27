@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from calendarDash.models import DashboardHRD, CalendarDashHRD
 from .serializers import DashboardHrdSerializers, CalendarDashSerializers
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q
+from userapp.models import User
+from presenceEmployee.models import PresenceEmployee
 
 class DashboardTopAPIView(viewsets.ModelViewSet):
     serializer_class = DashboardHrdSerializers
@@ -40,7 +42,26 @@ class CalendarAPIViewSet(viewsets.ModelViewSet):
             pett = self.get_queryset()
             serr = CalendarDashSerializers(pett, many=True)
         return Response(serializer.data)
+    
+    def create(self, request, *args, **kwargs):
+        calendarData = request.data
+        if(calendarData):
+            titleday = calendarData.get("title_day")
+            typedate = calendarData.get("type_day")
+            date = calendarData.get("date")
+            if(typedate == 'weekday'):
+                users = User.objects.all()
+                for user in users:
+                    absence = PresenceEmployee.objects.create(employee=user, working_date=date, ket=titleday)
 
+            else:
+                CalendarDashHRD.objects.create(title_day=titleday, type_day=typedate, date=date)
+            
+            response_message = Response({"message" : "Data Berhasil ditambahkan"}, status=status.HTTP_201_CREATED)  
+        else:
+            response_message = Response({"message" : "Tidak dapat menambahkan data dikarenakan tidak mengisi semua data"}, status=status.HTTP_400_BAD_REQUEST)  
+        return response_message
+    
 class CalendarAPIView(APIView):
     serializer_class = DashboardHrdSerializers
 

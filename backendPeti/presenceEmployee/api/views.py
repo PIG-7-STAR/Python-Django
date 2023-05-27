@@ -192,15 +192,15 @@ class PresenceAPIAnalisis(APIView):
     serializer_class = PresenceEmployeeSerializers
 
     def get_queryset(self):
-        petitions = PresenceEmployee.objects.all().order_by('-working_date')
+        petitions = PresenceEmployee.objects.all().order_by('working_date')
         return petitions
 
     def get(self, request, *args, **kwargs):
         users = request.user
         if(users.roles == "hrd"):
-            querySet = PresenceEmployee.objects.all().order_by('-working_date')
+            querySet = PresenceEmployee.objects.all().order_by('working_date')
         else:
-            querySet = PresenceEmployee.objects.all().filter(employee=users.pk) .order_by('-working_date')
+            querySet = PresenceEmployee.objects.all().filter(employee=users.pk).order_by('working_date')
 
         employee = self.request.query_params.get('employee', None)
         working_date = self.request.query_params.get('working_date', None)

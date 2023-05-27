@@ -189,6 +189,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
 
         employee_id = request.user.pk
+        employee_name = request.user.name
         employee_sc = request.user.sisa_cuti
 
         pengajuan_data = request.data
@@ -201,7 +202,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         fromH = pengajuan_data.get("from_hour")
         endH = pengajuan_data.get("end_hour")
         
-        responses = sendNotificationEmployee(permission=permiss, jumlahHari=juml, startDate=start_dat)
+        responses = sendNotificationEmployee(name=employee_name ,permission=permiss, jumlahHari=juml, startDate=start_dat)
 
         if(permiss != 'lembur'):
             if(reason != '' and  juml != ''):
@@ -299,7 +300,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
 
             submission_obj.save()
             serializers = SubmissionSerializer(submission_obj)
-            responses = sendNotificationHR(permission=permiss, jumlahHari=juml, startDate=start_dat, employee_id=employees.pk)
+            responses = sendNotificationHR(roles=logged_user, permission=permiss, jumlahHari=juml, startDate=start_dat, employee_id=employees.pk)
 
             res =  Response({"message" : "Berhasil",
                              "response" : responses.status_code, 

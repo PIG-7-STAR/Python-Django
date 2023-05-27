@@ -3,9 +3,9 @@ from django.conf import settings
 import requests
 from submisssion.api.filters import filterhr, filteruser, formatDate
 
-def sendNotificationEmployee(permission, jumlahHari, startDate ):
+def sendNotificationEmployee(name, permission, jumlahHari, startDate ):
     if(permission != 'lembur'):
-        messages = f'Pengajuan perizinan {permission} selama {jumlahHari} hari pada tanggal {formatDate(startDate)}'
+        messages = f'Pengajuan {name} perizinan {permission} selama {jumlahHari} hari pada tanggal {formatDate(startDate)}'
     else:
         messages = f'Pengajuan {permission} pada tanggal {formatDate(startDate)}'
     
@@ -27,11 +27,11 @@ def sendNotificationEmployee(permission, jumlahHari, startDate ):
     responses = requests.post(url, json=payload, headers=headers)
     return responses
 
-def sendNotificationHR(permission, jumlahHari, startDate, employee_id ):
+def sendNotificationHR(roles, permission, jumlahHari, startDate, employee_id ):
     if(permission != 'lembur'):
-        messages = f'Update terbaru untuk Pengajuan perizinan {permission} selama {jumlahHari} hari '
+        messages = f'Update terbaru dari {roles} untuk Pengajuan perizinan {permission} selama {jumlahHari} hari '
     else:
-        messages = f'Update terbaru untuk Pengajuan {permission} pada tanggal {formatDate(startDate)}'
+        messages = f'Update terbaru dari {roles} untuk Pengajuan {permission} pada tanggal {formatDate(startDate)}'
     
     user_filter = filteruser(id=employee_id)
     url = 'https://onesignal.com/api/v1/notifications'
