@@ -36,11 +36,11 @@ class CalendarAPIViewSet(viewsets.ModelViewSet):
     def get_ids(self, request, *args, **kwargs):
         ids = request.query_params["id"]
         if ids != None:
-                calendarHr = CalendarDashHRD.objects(id=ids)
-                serializer = CalendarDashSerializers(calendarHr)
+            calendarHr = CalendarDashHRD.objects(id=ids)
+            serializer = CalendarDashSerializers(calendarHr)
         else:
             pett = self.get_queryset()
-            serr = CalendarDashSerializers(pett, many=True)
+            serializer = CalendarDashSerializers(pett, many=True)
         return Response(serializer.data)
     
     def create(self, request, *args, **kwargs):

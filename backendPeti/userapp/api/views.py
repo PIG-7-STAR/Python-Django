@@ -108,7 +108,7 @@ class UserTotal(APIView):
         )
 
         weekday_count = get_weekday_count(year)
-        weekend_national_count = CalendarDashHRD.objects.filter(type_day='weekday').count()
+        weekend_national_count = CalendarDashHRD.objects.filter(day_of='weekday').count()
         total_day = weekday_count-weekend_national_count
 
         return Response({
