@@ -24,7 +24,7 @@ urlpatterns = [
     path('users/employee/search/', UserSearch.as_view()),
     path('users/employee/contract/', UserSearchContract.as_view()),
     path('users/employee/name/', UserSearchView.as_view()),
-    path('users/employee-total/', views.UserTotal.as_view()),
+    path('users/employee-total/<int:year>', views.UserTotal.as_view()),
     
     path('cuti/', include('saldoCuti.api.urls')),
 
