@@ -111,22 +111,24 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         noted = notes_data.get("notes")
         typ = notes_data.get("type_notes")
 
+        date = datetime.strptime(datn, '%Y-%m-%d').date()
+
         if(empl != '' and datn != '' and noted != ''):
             new_notes = NotesApp.objects.create(employee=User.objects.get(id=notes_data['employee']), notes=notes_data['notes'], type_notes=notes_data['type_notes'],
                             date_note=notes_data['date_note'])
             new_notes.save()
             if(typ == 'masuk'):
-                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
+                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=date,
                                                        end_from=1700, start_from=900, ket=noted
                                                        )
                 new_presen.save()
             elif(typ == 'sakit' or typ == 'tidak masuk' or typ == 'izin'):
-                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
+                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=date,
                                                        end_from=None, start_from=None, ket=typ
                                                        )
                 new_presen.save()
             elif(typ == 'cuti'):
-                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=datn,
+                new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=notes_data["employee"]), working_date=date,
                                                        end_from=None, start_from=None, ket=typ
                                                        )
                 users_obj = User.objects.get(id=notes_data['employee'])

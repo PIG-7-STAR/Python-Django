@@ -116,18 +116,10 @@ class PresenceEmployee(models.Model):
                 self.lembur_hour = calc_lembur
 
         if(self.working_date != None):
-            if(self.days == '' and self.years == ''):
-                cr_date = datetime.strptime(self.working_date, '%Y-%m-%d')
-                date = (cr_date.strftime('%A'))
-                self.days = date
-                self.years = (cr_date.year)
-                self.months = (cr_date.month)
-            else:
-                cr_date = datetime.strptime(self.working_date, '%Y-%m-%d')
-                date = (cr_date.strftime('%A'))
-                self.days = date
-                self.years = (cr_date.year)
-                self.months = (cr_date.month)
+            work_date = self.working_date
+            self.days = work_date.strftime('%A')
+            self.years = work_date.strftime('%Y')
+            self.months = work_date.strftime('%m')
         super(PresenceEmployee, self).save(*args, **kwargs)
  
     def __str__(self):  

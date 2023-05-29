@@ -28,7 +28,6 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
         else:
             querySet = PresenceEmployee.objects.all().filter(employee=users.pk).order_by('-id')
         employee = self.request.query_params.get('employee', None)
-
         working_date = self.request.query_params.get('working_date', None)
         months = self.request.query_params.get('months', None)
         years = self.request.query_params.get('years', None)
@@ -63,13 +62,14 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
         strfrom = presen.get("start_from")
         lmbrstr = presen.get("lembur_start")
         employee = User.objects.get(id=presen["employee"])
+        date = datetime.strptime(wrkdt, '%Y-%m-%d').date()
 
         if PresenceEmployee.objects.filter(Q(employee=employee) & Q(working_date=wrkdt)).exists():
             res = Response({"message" : "Sudah ada data absensi yang sama"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             if(wrkdt != None):
                 if(strfrom and lmbrstr != None):
-                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
+                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
                                                                 end_from=int(presen["end_from"]), start_from=int(presen["start_from"]), lembur_start=int(presen["lembur_start"]), 
                                                                 lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
                                                                 )
@@ -80,7 +80,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                     new_presen.save()
                     res = Response(response_message)
                 elif(strfrom != None):
-                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
+                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
                                                                 end_from=int(presen["end_from"]), start_from=int(presen["start_from"]),  ket=presen["ket"]
                                                                 )
                     serializer = PresenceEmployeeSerializers(new_presen)
@@ -90,7 +90,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                     new_presen.save()
                     res = Response(response_message)
                 elif(lmbrstr != None):
-                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=presen["working_date"],
+                    new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
                                                                 lembur_start=int(presen["lembur_start"]), lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
                                                                 )
                     serializer = PresenceEmployeeSerializers(new_presen)
@@ -106,11 +106,13 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         presence_obj = self.get_object()
         data = request.data
+        date = datetime.strptime(data['working_date'], '%Y-%m-%d').date()
 
         employee = User.objects.get(id=data["employee"])
 
         presence_obj.employee = employee
-        presence_obj.working_date = data['working_date']
+        presence_obj.working_date = date
+
         # presence_obj.working_date = datetime.strptime(data['working_date'], '%Y-%m-%d')
         if(presence_obj.start_from):
             presence_obj.start_from = int(data['start_from'])

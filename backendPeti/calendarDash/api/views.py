@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -45,18 +46,23 @@ class CalendarAPIViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         calendarData = request.data
-        if(calendarData):
+        if calendarData:
             titleday = calendarData.get("title_day")
-            typedate = calendarData.get("type_day")
-            date = calendarData.get("date")
-            if(typedate == 'weekday'):
-                users = User.objects.all()
-                for user in users:
-                    absence = PresenceEmployee.objects.create(employee=user, working_date=date, ket=titleday)
+            typeday = calendarData.get("type_day")
+            date_str = calendarData.get("date")
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
+            if date.weekday() >= 5:
+                dayof = 'weekend'
             else:
-                CalendarDashHRD.objects.create(title_day=titleday, type_day=typedate, date=date)
-            
+                dayof = 'weekday'
+
+            CalendarDashHRD.objects.create(title_day=titleday, type_day=typeday, date=date, day_of=dayof)
+
+            if dayof == 'weekday':
+                users = User.objects.all().filter(is_active=True)
+                for user in users:
+                    PresenceEmployee.objects.create(employee=user, working_date=date, ket=titleday)
             response_message = Response({"message" : "Data Berhasil ditambahkan"}, status=status.HTTP_201_CREATED)  
         else:
             response_message = Response({"message" : "Tidak dapat menambahkan data dikarenakan tidak mengisi semua data"}, status=status.HTTP_400_BAD_REQUEST)  

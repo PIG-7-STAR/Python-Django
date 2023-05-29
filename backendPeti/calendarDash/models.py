@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 
 class CalendarDashHRD(models.Model):
@@ -15,9 +16,14 @@ class CalendarDashHRD(models.Model):
         self.years = (self.date.year)
         self.months = (self.date.month)
         self.days = (self.date.day)
-        if(self.date != None):
+        if self.date is not None:
             dates = (self.date.strftime('%A'))
             self.day_names = dates
+            day_of = datetime.strptime(self.date.strftime('%Y-%m-%d'), '%Y-%m-%d').strftime('%A')
+            if day_of == 'Saturday' or day_of == 'Sunday':
+                self.day_of = 'weekend'
+            else:
+                self.day_of = 'weekday'
         super(CalendarDashHRD, self).save(*args, **kwargs)
  
     def __str__(self):  
