@@ -155,7 +155,6 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         note_object.notes = data['notes']
         note_object.type_notes = data['type_notes']
         note_object.date_note = data['date_note']
-        # note_object.date_notes = datetime.strptime(data['date_note'], '%Y-%m-%d')
 
         note_object.save()
 
