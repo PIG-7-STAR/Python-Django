@@ -107,7 +107,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
         presence_obj = self.get_object()
         data = request.data
         date = datetime.strptime(data['working_date'], '%Y-%m-%d').date()
-
+       
         employee = User.objects.get(id=data["employee"])
 
         presence_obj.employee = employee

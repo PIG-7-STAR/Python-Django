@@ -13,7 +13,7 @@ from django.db.models import Q, Sum
 from userapp.models import User
 from .serializer import SubmissionEmployeeSerializer, SubmissionSerializer, SubmissionCutiCalendarSerializer
 from submisssion.models import Submission, CalendarCutiSubmission
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from rest_framework.decorators import api_view
 import requests
@@ -290,9 +290,19 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                                                             )
                             new_presen.save()
                         elif(submission_obj.permission_type == 'cuti'):
+                            start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+                            end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
                             submiss_object = CalendarCutiSubmission.objects.create(employee=employees, 
                                 permission_type=data['permission_type'], reason=data['reason'],
-                                start=datetime.strptime(data['start_date'], '%Y-%m-%d') , end=datetime.strptime(data['end_date'], '%Y-%m-%d'))
+                                start=start_date , end=end_date)
+                            
+                            duration = (end_date - start_date).days + 1
+                            working_dates = [start_date + timedelta(days=i) for i in range(duration)]
+                            for working_date in working_dates:
+                                PresenceEmployee.objects.create(employee=employees, working_date=working_date, ket=submission_obj.permission_type)
+                            # PresenceEmployee.objects.create(employee=employees, working_date=datetime.strptime(data['start_date'], '%Y-%m-%d'),
+                            #                            end_from=None, start_from=None, ket=submission_obj.permission_type
+                            #                            )
                             users_obj = User.objects.get(id=data['employee'])
                             users_obj.sisa_cuti = int(users_obj.sisa_cuti) - int(submission_obj.jumlah_hari)
                             users_obj.save()
