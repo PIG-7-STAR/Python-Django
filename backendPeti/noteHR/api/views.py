@@ -199,3 +199,17 @@ class NotesAPIID(viewsets.ModelViewSet):
                 querySet=querySet.filter(notes=notes)
             serializer = NotesSerializer(querySet, many=True)
         return Response(serializer.data)
+    
+# class UserNotesCuti(APIView):
+#     serializer_class = NotesSerializer
+
+#     def get(self, request, year):
+        
+#         NotesApp.objects.all().filter()
+
+#         return Response({
+#                          "working_day": total_day,
+#                          "employee" : total_karyawan,
+#                          "total_attendance" : countPresence,
+#                          "total_employee" : total_karyawan_all,
+#                          })
