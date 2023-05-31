@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from noteHR.api.views import get_cuti
 from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
 from userapp.api.views import EmployeeBirth, UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView
@@ -25,6 +26,7 @@ urlpatterns = [
     path('users/employee/contract/', UserSearchContract.as_view()),
     path('users/employee/name/', UserSearchView.as_view()),
     path('users/employee-total/<int:year>', views.UserTotal.as_view()),
+    path('users/employee/cuti/<int:emp_id>/<int:year>/', get_cuti ),
     
     path('cuti/', include('saldoCuti.api.urls')),
 

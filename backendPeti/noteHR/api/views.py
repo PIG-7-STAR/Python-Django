@@ -2,13 +2,17 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
+from submisssion.api.serializer import SubmissionSerializer
+
+from submisssion.models import Submission
+
 from .serializer import NotesSerializer
 from noteHR.models import NotesApp
 from userapp.models import User
 from presenceEmployee.models import PresenceEmployee
 from datetime import datetime
 from rest_framework.pagination import LimitOffsetPagination
-
+from rest_framework.decorators import api_view
 
 class NotesAPIView(APIView):
     serializer_class = NotesSerializer
@@ -200,16 +204,17 @@ class NotesAPIID(viewsets.ModelViewSet):
             serializer = NotesSerializer(querySet, many=True)
         return Response(serializer.data)
     
-# class UserNotesCuti(APIView):
-#     serializer_class = NotesSerializer
 
-#     def get(self, request, year):
-        
-#         NotesApp.objects.all().filter()
 
-#         return Response({
-#                          "working_day": total_day,
-#                          "employee" : total_karyawan,
-#                          "total_attendance" : countPresence,
-#                          "total_employee" : total_karyawan_all,
-#                          })
+@api_view(['GET'])
+def get_cuti(request, year, emp_id):
+    notes = NotesApp.objects.filter(employee=emp_id, type_notes='cuti', tahun=year)
+    submission = Submission.objects.filter(employee=emp_id, permission_type='cuti', start_date__year=year)
+
+    serializer_notes = NotesSerializer(notes, many=True)
+    serializer_submiss = SubmissionSerializer(submission, many=True)
+
+    return Response({
+        "notes_cuti": serializer_notes.data,
+        "submission_cuti": serializer_submiss.data,
+    })
