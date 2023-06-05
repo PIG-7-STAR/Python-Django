@@ -32,7 +32,7 @@ def filterhr(hrd, atasan):
 
 def formatDate(tanggal):
     dt = datetime.strptime(tanggal, '%Y-%m-%d')
-    hari = dt.strftime('%A')
+    hari = dt.strftime('%d')
     nama_bulan = dt.strftime('%B')
     tahun = dt.strftime('%Y')
     tanggal_hasil = f"{hari} {nama_bulan} {tahun}"
