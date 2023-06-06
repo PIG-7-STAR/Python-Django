@@ -4,9 +4,10 @@ from noteHR.api.views import get_cuti
 from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
 from userapp.api.views import EmployeeBirth, UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView
-from calendarDash.api.views import WeekTotals
+from calendarDash.api.views import WeekTotals, post_delete_calendar
 from presenceEmployee.api.views import PresenceAPIAnalisis, PresenceAPICompare, PresenceSearch, TopPresenceAPIView, PresenceStatistik, PresenceStatistikUser, statistikPreview
 from submisssion.api.views import    CalendarSubmissionView, SubmissionIzin, send_notification_api
+from noteHR.api.views import post_delete_notes
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,9 +44,11 @@ urlpatterns = [
     path('api/presence/total-day/', TopPresenceAPIView.as_view()),
 
     path('api/note/', include('noteHR.api.urls')),
+    path('api/note/delete/', post_delete_notes),
 
     path('api/dashboard/', include('calendarDash.api.urls')),
     path('api/dashboard/week-of', WeekTotals.as_view()),
+    path('api/dashboard/day-of/delete/', post_delete_calendar),
     path('api/dashboard/presence-statistik/<int:year>/', PresenceStatistik.as_view()),
     path('api/dashboard/employee-statistik/<int:year>/', PresenceStatistikUser.as_view()),
     path('api/dashboard/employee-permission/', SubmissionIzin.as_view()),

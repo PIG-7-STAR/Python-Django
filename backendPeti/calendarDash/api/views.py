@@ -8,6 +8,7 @@ from .serializers import DashboardHrdSerializers, CalendarDashSerializers
 from django.db.models import Count, Q
 from userapp.models import User
 from presenceEmployee.models import PresenceEmployee
+from rest_framework.decorators import api_view
 
 class DashboardTopAPIView(viewsets.ModelViewSet):
     serializer_class = DashboardHrdSerializers
@@ -132,3 +133,28 @@ class WeekTotals(APIView):
                          "sakit" : serializer_sakit.data
                          })
                          
+@api_view(['POST'])
+def post_delete_calendar(request):
+    calendarData = request.data
+    if calendarData:
+        titleday = calendarData.get("title_day")
+        typeday = calendarData.get("type_day")
+        date_str = calendarData.get("date")
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+        if date.weekday() >= 5:
+            dayof = 'weekend'
+        else:
+            dayof = 'weekday'
+
+        calendar_del = CalendarDashHRD.objects.get(title_day=titleday, type_day=typeday, date=date, day_of=dayof)
+        calendar_del.delete()
+        if dayof == 'weekday':
+            users = User.objects.all().filter(is_active=True)
+            for user in users:
+                presen = PresenceEmployee.objects.get(employee=user, working_date=date, ket=titleday)
+                presen.delete()
+        response_message = Response({"message" : "Data berhasil dihapus"}, status=status.HTTP_200_OK)  
+    else:
+        response_message = Response({"message" : "Tidak dapat menambahkan data dikarenakan tidak mengisi semua data"}, status=status.HTTP_400_BAD_REQUEST)  
+    return response_message

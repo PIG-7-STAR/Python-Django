@@ -222,3 +222,22 @@ def get_cuti(request, year, emp_id):
         "notes_cuti": serializer_notes.data,
         "submission_cuti": serializer_submiss.data,
     })
+
+@api_view(['POST'])
+def post_delete_notes(request):
+
+    notes_data = request.data
+    empl = notes_data.get("employee")
+    datenote = notes_data.get("date_note")
+    noted = notes_data.get("notes")
+    type_nt = notes_data.get("type_notes")
+
+    notesed = NotesApp.objects.get(employee=empl, date_note=datenote, notes=noted, type_notes=type_nt)
+    if(type_nt != 'catatan'):
+        presencess = PresenceEmployee.objects.get(employee=empl, working_date=datenote, ket=noted)
+        presencess.delete()
+        print('berhasil')
+    notesed.delete()
+    response_message={"message" : "Notes has been deleted"}
+
+    return Response(response_message)
