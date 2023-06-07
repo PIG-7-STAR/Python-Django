@@ -56,7 +56,7 @@ urlpatterns = [
     path('api/dashboard/preview/<int:year>/', statistikPreview.as_view()),
     # path('api/dashboard/preview-aktual/<int:year>/', statistikPreviewAktual.as_view()),
     path('api/dashboard/employee-birth/<int:month>/', EmployeeBirth.as_view()),
-    path('api/dashboard/contract-end/<int:month>/', EmployeeContractEnd.as_view()),
+    path('api/dashboard/contract-end/<int:month>/<int:year>/', EmployeeContractEnd.as_view()),
 
     path('api/submission/', include('submisssion.api.urls')),
     path('api/submission/calendar', CalendarSubmissionView.as_view()),
