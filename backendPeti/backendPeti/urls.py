@@ -3,7 +3,7 @@ from django.urls import path, include
 from noteHR.api.views import get_cuti
 from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
-from userapp.api.views import EmployeeBirth, UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView
+from userapp.api.views import EmployeeBirth, UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView, EmployeeContractEnd
 from calendarDash.api.views import WeekTotals, post_delete_calendar
 from presenceEmployee.api.views import PresenceAPIAnalisis, PresenceAPICompare, PresenceSearch, TopPresenceAPIView, PresenceStatistik, PresenceStatistikUser, statistikPreview
 from submisssion.api.views import    CalendarSubmissionView, SubmissionIzin, send_notification_api
@@ -56,6 +56,7 @@ urlpatterns = [
     path('api/dashboard/preview/<int:year>/', statistikPreview.as_view()),
     # path('api/dashboard/preview-aktual/<int:year>/', statistikPreviewAktual.as_view()),
     path('api/dashboard/employee-birth/<int:month>/', EmployeeBirth.as_view()),
+    path('api/dashboard/contract-end/<int:month>/', EmployeeContractEnd.as_view()),
 
     path('api/submission/', include('submisssion.api.urls')),
     path('api/submission/calendar', CalendarSubmissionView.as_view()),
