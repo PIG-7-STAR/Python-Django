@@ -39,6 +39,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         is_staff = models.BooleanField(default=False)
         is_superuser = models.BooleanField(default=False)
         employee_joined = models.DateField(null=True, blank=True)
+        employee_ended = models.DateField(null=True, blank=True)
         date_joined = models.DateTimeField(default=timezone.now) #karyawan mulai bekerja
         receive_newsletter = models.BooleanField(default=False)
         sisa_cuti = models.IntegerField( blank=True, null=True)
