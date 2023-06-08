@@ -66,14 +66,14 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('pk', 'employee_code', 'username', 'email', 'first_name', 'last_name', 'is_active', 'name', 'division', 'employee_joined', 'birth_date',
+        fields = ('pk', 'employee_code', 'username', 'email', 'first_name', 'last_name', 'is_active', 'name', 'division', 'employee_joined', 'employee_ended', 'birth_date',
                     'sisa_cuti', 'roles', 'gender', 'religion', 'contract_start', 'contract_end', 'contract_time')
         # read_only_fields = ('email', )
 
 class UserContractSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('pk','employee_code', 'name', 'division', 'employee_joined', 'employee_ended' 'contract_start', 'contract_end', 'contract_time', 'is_active' )
+        fields = ('pk','employee_code', 'name', 'division', 'employee_joined', 'employee_ended', 'contract_start', 'contract_end', 'contract_time', 'is_active' )
 
 class UserBirthdaySerializers(serializers.ModelSerializer):
     class Meta:

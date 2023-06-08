@@ -103,31 +103,31 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                     res = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)
         return res
     
-    def update(self, request, *args, **kwargs):
-        presence_obj = self.get_object()
-        data = request.data
-        date = datetime.strptime(data['working_date'], '%Y-%m-%d').date()
+    # def update(self, request, *args, **kwargs):
+    #     data = request.data
+    #     presence_obj = self.get_object()
+    #     date = datetime.strptime(data['working_date'], '%Y-%m-%d').date()
        
-        employee = User.objects.get(id=data["employee"])
+    #     employee = User.objects.get(id=data["employee"])
 
-        presence_obj.employee = employee
-        presence_obj.working_date = date
+    #     presence_obj.employee = employee
+    #     presence_obj.working_date = date
+    #     if(presence_obj.start_from):
+    #         presence_obj.start_from = int(data['start_from'])
+    #         presence_obj.end_from = int(data['end_from'])
+    #     if(presence_obj.lembur_start):
+    #         presence_obj.lembur_start = int(data['lembur_start'])
+    #         presence_obj.lembur_end = int(data['lembur_end'])
+    #         print(presence_obj.lembur_start)
+    #     if(presence_obj.ket):
+    #         presence_obj.ket = data['ket']
+    #     print("hi")
+    #     print(presence_obj.lembur_end)
+    #     presence_obj.save()
 
-        # presence_obj.working_date = datetime.strptime(data['working_date'], '%Y-%m-%d')
-        if(presence_obj.start_from):
-            presence_obj.start_from = int(data['start_from'])
-            presence_obj.end_from = int(data['end_from'])
-        if(presence_obj.lembur_start != None):
-            presence_obj.lembur_start = data['lembur_start']
-            presence_obj.lembur_end = data['lembur_end']
-        if(presence_obj.ket != None):
-            presence_obj.ket = data['ket']
+    #     serializers = PresenceEmployeeSerializers(presence_obj)
 
-        presence_obj.save()
-
-        serializers = PresenceEmployeeSerializers(presence_obj)
-
-        return Response(serializers.data)
+    #     return Response(serializers.data)
 
 class PresenceSearch(APIView):
     serializer_class = PresenceEmployeeSerializers
