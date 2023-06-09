@@ -57,13 +57,17 @@ class CalendarAPIViewSet(viewsets.ModelViewSet):
                 dayof = 'weekend'
             else:
                 dayof = 'weekday'
+            try:
+                existing_date = CalendarDashHRD.objects.get(date=date)
+                response_message = {"message": f"Sudah ada Jenis data di tanggal {existing_date.date}"}
+                return Response(response_message, status=409)
+            except CalendarDashHRD.DoesNotExist:
+                CalendarDashHRD.objects.create(title_day=titleday, type_day=typeday, date=date, day_of=dayof)
 
-            CalendarDashHRD.objects.create(title_day=titleday, type_day=typeday, date=date, day_of=dayof)
-
-            if dayof == 'weekday':
-                users = User.objects.all().filter(is_active=True)
-                for user in users:
-                    PresenceEmployee.objects.create(employee=user, working_date=date, ket=titleday)
+                if dayof == 'weekday':
+                    users = User.objects.all().filter(is_active=True)
+                    for user in users:
+                        PresenceEmployee.objects.create(employee=user, working_date=date, ket=titleday)
             response_message = Response({"message" : "Data Berhasil ditambahkan"}, status=status.HTTP_201_CREATED)  
         else:
             response_message = Response({"message" : "Tidak dapat menambahkan data dikarenakan tidak mengisi semua data"}, status=status.HTTP_400_BAD_REQUEST)  
@@ -152,8 +156,11 @@ def post_delete_calendar(request):
         if dayof == 'weekday':
             users = User.objects.all().filter(is_active=True)
             for user in users:
-                presen = PresenceEmployee.objects.get(employee=user, working_date=date, ket=titleday)
-                presen.delete()
+                presen = PresenceEmployee.objects.filter(employee=user, working_date=date, ket=titleday)
+                if presen.exists():
+                    presen.delete()
+                else:
+                    print("tidak ada data presensi")
         response_message = Response({"message" : "Data berhasil dihapus"}, status=status.HTTP_200_OK)  
     else:
         response_message = Response({"message" : "Tidak dapat menambahkan data dikarenakan tidak mengisi semua data"}, status=status.HTTP_400_BAD_REQUEST)  

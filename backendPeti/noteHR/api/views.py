@@ -232,11 +232,14 @@ def post_delete_notes(request):
     noted = notes_data.get("notes")
     type_nt = notes_data.get("type_notes")
 
-    notesed = NotesApp.objects.get(employee=empl, date_note=datenote, notes=noted, type_notes=type_nt)
+    notesed = NotesApp.objects.filter(employee=empl, date_note=datenote, notes=noted, type_notes=type_nt)
     if(type_nt != 'catatan'):
-        presencess = PresenceEmployee.objects.get(employee=empl, working_date=datenote, ket=noted)
-        presencess.delete()
-        print('berhasil')
+        presencess = PresenceEmployee.objects.filter(employee=empl, working_date=datenote, ket=noted)
+        if presencess.exists():
+            presencess.delete()
+            print('berhasil')
+        else:
+            print("Tidak ada objek PresenceEmployee")
     notesed.delete()
     response_message={"message" : "Notes has been deleted"}
 
