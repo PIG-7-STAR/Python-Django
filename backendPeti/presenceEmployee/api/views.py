@@ -103,31 +103,41 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                     res = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)
         return res
     
-    # def update(self, request, *args, **kwargs):
-    #     data = request.data
-    #     presence_obj = self.get_object()
-    #     date = datetime.strptime(data['working_date'], '%Y-%m-%d').date()
-       
-    #     employee = User.objects.get(id=data["employee"])
+    def update(self, request, *args, **kwargs):
+        logged_in = request.user.roles
+        if(logged_in == 'hrd'):
+            data = request.data
+            if data:
+                presence_obj = self.get_object()
+                date = datetime.strptime(data['working_date'], '%Y-%m-%d').date()
 
-    #     presence_obj.employee = employee
-    #     presence_obj.working_date = date
-    #     if(presence_obj.start_from):
-    #         presence_obj.start_from = int(data['start_from'])
-    #         presence_obj.end_from = int(data['end_from'])
-    #     if(presence_obj.lembur_start):
-    #         presence_obj.lembur_start = int(data['lembur_start'])
-    #         presence_obj.lembur_end = int(data['lembur_end'])
-    #         print(presence_obj.lembur_start)
-    #     if(presence_obj.ket):
-    #         presence_obj.ket = data['ket']
-    #     print("hi")
-    #     print(presence_obj.lembur_end)
-    #     presence_obj.save()
+                employee = User.objects.get(id=data["employee"])
 
-    #     serializers = PresenceEmployeeSerializers(presence_obj)
+                presence_obj.employee = employee
+                presence_obj.working_date = date
 
-    #     return Response(serializers.data)
+                if hasattr(presence_obj, 'start_from'):
+                    presence_obj.start_from = int(data['start_from'])
+                    presence_obj.end_from = int(data['end_from'])
+
+                if hasattr(presence_obj, 'lembur_start'):
+                    presence_obj.lembur_start = int(data['lembur_start'])
+                    presence_obj.lembur_end = int(data['lembur_end'])
+                    print(presence_obj.lembur_start)
+
+                if hasattr(presence_obj, 'ket'):
+                    presence_obj.ket = data['ket']
+
+                print("hi")
+                print(presence_obj.lembur_end)
+                presence_obj.save()
+                res = Response({'message' : 'Data berhasil disimpan'})
+            else:
+                res = Response({'message' : 'Isikan data yang di perlukan'})
+        else:
+            res = Response({'message' : 'Anda bukan HR, untuk mengeditnya silahkan ke HR terlebih dahulu'})
+
+        return res
 
 class PresenceSearch(APIView):
     serializer_class = PresenceEmployeeSerializers

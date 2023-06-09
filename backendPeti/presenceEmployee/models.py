@@ -166,6 +166,7 @@ class PresenceEmployee(models.Model):
             else:
                 self.lembur_hour = calclembur
                 self.working_hour_detail = calclembur/100
+        
         if(self.working_date != None):
             work_date = self.working_date
             self.days = work_date.strftime('%A')
