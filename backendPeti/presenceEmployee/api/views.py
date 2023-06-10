@@ -116,17 +116,17 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                 presence_obj.employee = employee
                 presence_obj.working_date = date
 
-                if hasattr(presence_obj, 'start_from'):
-                    presence_obj.start_from = int(data['start_from'])
-                    presence_obj.end_from = int(data['end_from'])
+                if 'start_from' in data:
+                    presence_obj.start_from = int(data.get('start_from'))
+                    presence_obj.end_from = int(data.get('end_from'))
 
-                if hasattr(presence_obj, 'lembur_start'):
-                    presence_obj.lembur_start = int(data['lembur_start'])
-                    presence_obj.lembur_end = int(data['lembur_end'])
+                if 'lembur_start' in data:
+                    presence_obj.lembur_start = int(data.get('lembur_start'))
+                    presence_obj.lembur_end = int(data.get('lembur_end'))
                     print(presence_obj.lembur_start)
 
-                if hasattr(presence_obj, 'ket'):
-                    presence_obj.ket = data['ket']
+                if 'ket' in data:
+                    presence_obj.ket = data.get('ket')
 
                 print("hi")
                 print(presence_obj.lembur_end)
