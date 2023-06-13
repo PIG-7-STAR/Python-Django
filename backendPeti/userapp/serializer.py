@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from allauth.account.adapter import get_adapter
 from backendPeti import settings
-from .models import User, UserRoles, UserDivision
+from .models import Log, User, UserRoles, UserDivision
 from allauth.account.utils import setup_user_email
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_decode
@@ -95,6 +95,11 @@ class UserDivisionSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserDivision
         fields = '__all__' 
+
+class LogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log
+        fields = '__all__'
 
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
