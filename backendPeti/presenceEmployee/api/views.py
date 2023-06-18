@@ -9,6 +9,7 @@ from userapp.models import User
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models.functions import TruncMonth
 from datetime import datetime
+import calendar
 
 class PresenceAPIView(APIView):
     serializer_class = PresenceEmployeeSerializers
@@ -258,105 +259,6 @@ class TopPresenceAPIView(APIView):
                          "cth" : total_karyawan_all,
                          })
 
-class PresenceStatistik(APIView):
-    def get(self, request, year):
-        users = self.request.user
-        user_dict = {}
-        # if(users.roles == 'karyawan'):
-        #     presences = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=users.pk)
-        # else:
-        presences = PresenceEmployee.objects.filter(working_date__year=year)
-        for presence in presences:
-            user = presence.employee
-            month = presence.working_date.strftime('%B')
-            if user not in user_dict:
-                user_dict[user] = {month: presence.working_hour}
-            else:
-                if month not in user_dict[user]:
-                    user_dict[user][month] = presence.working_hour
-                else:
-                    if(presence.working_hour != None):
-                        user_dict[user][month] += presence.working_hour
-                    else:
-                        user_dict[user][month] += 0
-
-        total_per_month = {}
-        total_asint = {}
-        for user, months in user_dict.items():
-            for month, working_hour in months.items():
-                if month not in total_per_month:
-                    total_per_month[month] = working_hour
-                    total_asint[month] = working_hour
-                else:
-                    if(working_hour != None):
-                        total_per_month[month] += working_hour
-                        total_asint[month] += working_hour
-                    else:
-                        total_per_month[month] += 0
-                        total_asint[month] += 0
-
-        # Mengonversi total_per_month dari menit ke jam:menit
-        for month, working_hour in total_per_month.items():
-            jam = working_hour // 60
-            menit = working_hour % 60
-            total_per_month[month] = f"{jam} jam {menit} menit"
-            total_asint[month] = jam
-
-        chart_data = [{"month": month, "total_jam": value} for month, value in total_asint.items()]
-
-        return Response({'year': year, 'data': total_per_month, 'chart': chart_data})
-
-class statistikPreview(APIView):
-
-  def get(self, request, year):
-        employee_id = self.request.user
-        data = []
-        for month in range(1, 13):
-            if(employee_id.roles == "karyawan"):
-                presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=employee_id.pk).filter(working_date__month=month)
-            else:
-                presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(working_date__month=month)
-            total_working_hour = presence_employee_query.aggregate(Sum('working_hour'))['working_hour__sum'] or 0
-            total_attendance = presence_employee_query.filter(~Q(working_hour=None)).count()
-            
-            if(employee_id.name != "Kunut Catur"):
-                total_hour = 800*total_attendance
-            else:
-                total_hour = 900*total_attendance
-
-            if total_working_hour % 100 >= 60:
-                total_working_hour += 40
-
-            data.append({
-                "month": datetime(year, month, 1).strftime("%b"),
-                "value": total_working_hour,
-                "actual_value": total_hour
-            })
-        return Response(data)
-
-# class statistikPreviewAktual(APIView):
-
-#   def get(self, request, year):
-#         employee_id = self.request.user
-#         data = []
-#         for month in range(1, 13):
-#             if(employee_id.roles == "karyawan"):
-#                 presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(employee=employee_id.pk).filter(working_date__month=month)
-#             else:
-#                 presence_employee_query = PresenceEmployee.objects.filter(working_date__year=year).filter(working_date__month=month)
-
-#             total_attendance = presence_employee_query.filter(~Q(working_hour=None)).count()
-#             if(employee_id.name != "Kunut Catur"):
-#                 total_hour = 800*total_attendance
-#             else:
-#                 total_hour = 900*total_attendance
-
-#             data.append({
-#                 "month": datetime(year, month, 1).strftime("%b"),
-#                 "value": total_hour
-#             })
-#         return Response(data)
-
 class PresenceStatistikUser(APIView):
     def get(self, request, year):
         user_attendance = PresenceEmployee.objects.filter(working_date__year=year).annotate(month=TruncMonth('working_date')).values('month', 'employee__name').annotate(total_attendance=Count('id'), total_working=Sum('working_hour')).order_by('month', '-total_working')
@@ -366,13 +268,78 @@ class PresenceStatistikUser(APIView):
             username = item['employee__name']
             total_attendance = item['total_attendance']
             total_working_minutes = item['total_working']
-            total_working_hours = total_working_minutes // 60
+            if total_working_minutes != None:
+                total_working_minutes = item['total_working']
+                total_working_hours = total_working_minutes // 60
+            else:
+                total_working_minutes = 0
+                total_working_hours = 0 // 60
             total_working_minutes_remainder = total_working_minutes % 60
             total_working_time = f"{total_working_hours} jam {total_working_minutes_remainder} menit"
-            print(total_working_minutes) 
             if month in data:
                 data[month].append({'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working_time})
             else:
                 data[month] = [{'employee_name': username, 'total_attendance': total_attendance, 'total_hour': total_working_time}]
         
         return Response(data)
+
+class StatistikPresenceInMonth(APIView):
+    def get(self, request, year):
+        employee_id = self.request.user
+        if employee_id.roles == 'hrd':
+            presence_data = PresenceEmployee.objects.annotate(
+                month=TruncMonth('working_date')
+            ).filter(
+                working_hour__isnull=False,
+                working_date__year=year
+            ).values('month').annotate(
+                count=Count('id')
+            ).order_by('month')
+        else:
+            presence_data = PresenceEmployee.objects.annotate(
+                month=TruncMonth('working_date')
+            ).filter(
+                working_hour__isnull=False,
+                working_date__year=year,
+                employee=employee_id.pk
+            ).values('month').annotate(
+                count=Count('id')
+            ).order_by('month')
+        
+        result = []
+        all_months = [calendar.month_abbr[month_num] for month_num in range(1, 13)]
+        
+        for month_abbr in all_months:
+            count = next(
+                (item['count'] for item in presence_data if item['month'].strftime('%b') == month_abbr),
+                0
+            )
+            result.append({month_abbr: count})
+        
+        return Response(result)
+
+class StatistikSubmissionEmployeeInMonth(APIView):
+    def get(self, request, year):
+        user_log = self.request.user
+        if user_log.roles == 'hrd':
+            presence_data = PresenceEmployee.objects.all().filter(working_date__year=year)
+        else:
+            presence_data = PresenceEmployee.objects.all().filter(working_date__year=year, employee=user_log.pk)
+        
+        result = {
+            month_abbr: {
+                "tidak masuk": 0,
+                "sakit": 0,
+                "izin": 0,
+                "cuti": 0
+            } for month_abbr in calendar.month_abbr[1:]
+        }
+        
+        for presence in presence_data:
+            month = calendar.month_abbr[presence.working_date.month]  
+            ket = presence.ket
+            
+            if ket in result[month]:
+                result[month][ket] += 1
+        
+        return Response(result)
