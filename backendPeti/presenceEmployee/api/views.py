@@ -279,12 +279,20 @@ class PresenceStatistikUser(APIView):
         return Response(result)
 
 class StatistikPresenceInMonth(APIView):
-    def get(self, request):
-        presence_data = PresenceEmployee.objects.annotate(
-            month=TruncMonth('working_date')
-        ).filter(working_hour__isnull=False).values('month').annotate(
-            count=Count('id')
-        ).order_by('month')
+    def get(self, request, year):
+        log_user = self.request.user
+        if log_user.roles == 'hrd':
+            presence_data = PresenceEmployee.objects.annotate(
+                month=TruncMonth('working_date')
+            ).filter(working_hour__isnull=False, working_date__year=year).values('month').annotate(
+                count=Count('id')
+            ).order_by('month')
+        else:
+            presence_data = PresenceEmployee.objects.annotate(
+                month=TruncMonth('working_date')
+            ).filter(employee=log_user.pk, working_hour__isnull=False, working_date__year=year).values('month').annotate(
+                count=Count('id')
+            ).order_by('month')
         
         result = [
             {item['month'].strftime('%b'): item['count']} for item in presence_data
