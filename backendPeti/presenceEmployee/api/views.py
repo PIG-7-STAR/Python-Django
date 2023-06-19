@@ -308,26 +308,34 @@ class StatistikSubmissionEmployeeInMonth(APIView):
         else:
             presence_data = PresenceEmployee.objects.all().filter(working_date__year=year, employee=user_log.pk)
         
-        if user_log.roles == 'hrd':
-            result = {
-                month_abbr: {
-                        "masuk": PresenceEmployee.objects.filter(working_date__year=year, working_date__month=month_num, working_hour__isnull=False).count(),
-                        "tidak masuk": 0,
-                        "sakit": 0,
-                        "izin": 0,
-                        "cuti": 0
-                    } for month_num, month_abbr in enumerate(calendar.month_abbr[1:], start=1)
-                }
-        else:
-            result = {
-                month_abbr: {
-                        "masuk": PresenceEmployee.objects.filter(employee=user_log.pk, working_date__year=year, working_date__month=month_num, working_hour__isnull=False).count(),
-                        "tidak masuk": 0,
-                        "sakit": 0,
-                        "izin": 0,
-                        "cuti": 0
-                    } for month_num, month_abbr in enumerate(calendar.month_abbr[1:], start=1)
-                }
+        # if user_log.roles == 'hrd':
+        #     result = {
+        #         month_abbr: {
+        #                 "masuk": PresenceEmployee.objects.filter(working_date__year=year, working_date__month=month_num, working_hour__isnull=False).count(),
+        #                 "tidak masuk": 0,
+        #                 "sakit": 0,
+        #                 "izin": 0,
+        #                 "cuti": 0
+        #             } for month_num, month_abbr in enumerate(calendar.month_abbr[1:], start=1)
+        #         }
+        # else:
+        #     result = {
+        #         month_abbr: {
+        #                 "masuk": PresenceEmployee.objects.filter(employee=user_log.pk, working_date__year=year, working_date__month=month_num, working_hour__isnull=False).count(),
+        #                 "tidak masuk": 0,
+        #                 "sakit": 0,
+        #                 "izin": 0,
+        #                 "cuti": 0
+        #             } for month_num, month_abbr in enumerate(calendar.month_abbr[1:], start=1)
+        #         }
+        result = {
+            month_abbr: {
+                "tidak masuk": 0,
+                "sakit": 0,
+                "izin": 0,
+                "cuti": 0
+            } for month_abbr in calendar.month_abbr[1:]
+        }
         
         for presence in presence_data:
             month = calendar.month_abbr[presence.working_date.month]  
