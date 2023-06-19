@@ -284,7 +284,7 @@ class StatistikPresenceInMonth(APIView):
         presence_data = PresenceEmployee.objects.annotate(
             month=TruncMonth('working_date')
         ).filter(
-            working_hour__isnull=False,
+            working_hour__isnull=True,
             working_date__year=year
         ).values('month').annotate(
             count_id=Count('id') / user_data
@@ -336,7 +336,7 @@ class StatistikSubmissionEmployeeInMonth(APIView):
                 "cuti": 0
             } for month_abbr in calendar.month_abbr[1:]
         }
-        
+
         for presence in presence_data:
             month = calendar.month_abbr[presence.working_date.month]  
             ket = presence.ket
