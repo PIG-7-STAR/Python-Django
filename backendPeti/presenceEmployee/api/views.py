@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from presenceEmployee.models import PresenceEmployee
 from .serializers import PresenceEmployeeSerializers
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from userapp.models import User
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models.functions import TruncMonth
@@ -279,22 +279,15 @@ class PresenceStatistikUser(APIView):
         return Response(result)
 
 class StatistikPresenceInMonth(APIView):
-   def get(self, request, year):
-        user_data = User.objects.filter(is_active=True).count()
+    def get(self, request):
         presence_data = PresenceEmployee.objects.annotate(
             month=TruncMonth('working_date')
-        ).filter(
-            working_hour__isnull=True,
-            working_date__year=year
-        ).values('month').annotate(
-            count_id=Count('id') / user_data
+        ).filter(working_hour__isnull=False).values('month').annotate(
+            count=Count('id')
         ).order_by('month')
         
-        all_months = [calendar.month_abbr[month_num] for month_num in range(1, 13)]
-        
         result = [
-            {month_abbr: next((item['count_id'] for item in presence_data if item['month'].strftime('%b') == month_abbr), 0)}
-            for month_abbr in all_months
+            {item['month'].strftime('%b'): item['count']} for item in presence_data
         ]
         
         return Response(result)
@@ -336,7 +329,7 @@ class StatistikSubmissionEmployeeInMonth(APIView):
                 "cuti": 0
             } for month_abbr in calendar.month_abbr[1:]
         }
-
+        
         for presence in presence_data:
             month = calendar.month_abbr[presence.working_date.month]  
             ket = presence.ket
