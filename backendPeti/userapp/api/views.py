@@ -134,7 +134,7 @@ class UserWorkHourAPIView(APIView):
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
         
-        presences = PresenceEmployee.objects.filter(working_date__gte=start_date, working_date__lte=end_date, employee__is_active=user_active)
+        presences = PresenceEmployee.objects.filter(working_date__gte=start_date, working_date__lte=end_date, employee__is_active=user_active, working_hour__isnull=False)
         
         user_dict = {}
         for presence in presences:

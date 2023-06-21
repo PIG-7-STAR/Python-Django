@@ -265,7 +265,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
             submission_obj.reason = data['reason']
             submission_obj.start_date = data['start_date']
             submission_obj.end_date = data['end_date']
-            submission_obj.return_date = data['return_date']
+            # submission_obj.return_date = data['return_date']
 
             if(submission_obj.permission_type != 'lembur'):  
                 submission_obj.jumlah_hari = data['jumlah_hari']
@@ -285,8 +285,9 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                 elif(submission_obj.permission_pil == 'disetujui'):
                     if(submission_obj.status_submission == False):
                         if(submission_obj.permission_type == 'lembur'):
-                            new_presen = PresenceEmployee.objects.create(employee=employees, working_date= submission_obj.start_date,
-                                                            lembur_end=data['end_hour'], lembur_start=data['from_hour']
+                            start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+                            new_presen = PresenceEmployee.objects.create(employee=employees, working_date=start_date,
+                                                            lembur_end=int(data['end_hour']), lembur_start=int(data['from_hour'])
                                                             )
                             new_presen.save()
                         elif(submission_obj.permission_type == 'cuti'):
