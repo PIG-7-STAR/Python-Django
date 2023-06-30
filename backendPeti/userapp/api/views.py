@@ -6,7 +6,7 @@ from rest_framework import viewsets
 from django.db.models import Count, Q
 from calendarDash.models import CalendarDashHRD
 from presenceEmployee.models import PresenceEmployee
-from userapp.serializer import UserBirthdaySerializers, UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
+from userapp.serializer import ChangePasswordSerializer, UserBirthdaySerializers, UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
 from userapp.models import User, UserRoles, UserDivision
 from django.db.models import Sum
 from attendanceEmployee.models import AttendanceEmployee
@@ -16,6 +16,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
 from userapp.utils.utilsfunction import get_weekday_count
+from django.contrib.auth.hashers import check_password, make_password
 
 class UserApiView(APIView):
     serializer_class = UserDetailsSerializer
@@ -328,3 +329,23 @@ class ResetPassword(generics.GenericAPIView):
             {"Message" : "Password reset complete"},
             status = status.HTTP_200_OK
         )
+
+class ChangePasswordAPIView(APIView):
+    def post(self, request):
+        # Mendapatkan data permintaan
+        old_password = request.data.get('old_password')
+        new_password1 = request.data.get('new_password1')
+        new_password2 = request.data.get('new_password2')
+        
+        if new_password1 != new_password2:
+            return Response({'message': 'New passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = request.user
+        
+        if not check_password(old_password, user.password):
+            return Response({'message': 'Invalid old password.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.password = make_password(new_password1)
+        user.save()
+        
+        return Response({'message': 'Password changed successfully.'}, status=status.HTTP_200_OK)
