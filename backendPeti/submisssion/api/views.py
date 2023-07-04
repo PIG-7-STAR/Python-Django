@@ -250,14 +250,13 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
         logged_user = request.user.roles
         data = request.data
 
-        if(logged_user == "hrd" or logged_user == "atasan"):
+        if logged_user == "hrd" or logged_user == "atasan":
             submission_obj = self.get_object()
 
             permiss = submission_obj.permission_type = data['permission_type']
-            juml =  submission_obj.jumlah_hari = data['jumlah_hari']
+            juml = submission_obj.jumlah_hari = data['jumlah_hari']
             start_dat = submission_obj.start_date = data['start_date']
 
-            # employees = User.objects.get(id=data['employee'])
             employees = User.objects.get(id=data['employee'])
 
             submission_obj.employee = employees
@@ -265,45 +264,51 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
             submission_obj.reason = data['reason']
             submission_obj.start_date = data['start_date']
             submission_obj.end_date = data['end_date']
-            # submission_obj.return_date = data['return_date']
 
-            if(submission_obj.permission_type != 'lembur'):  
+            if submission_obj.permission_type != 'lembur':  
                 submission_obj.jumlah_hari = data['jumlah_hari']
-            if(submission_obj.from_hour != None and submission_obj.end_hour != None and submission_obj.permission_type == 'lembur'):
+            
+            if submission_obj.from_hour is not None and submission_obj.end_hour is not None and submission_obj.permission_type == 'lembur':
                 submission_obj.from_hour = data['from_hour']
                 submission_obj.end_hour = data['end_hour']
-            if(submission_obj.permission_pil != ''):
+            
+            if submission_obj.permission_pil != '':
                 submission_obj.permission_pil = data['permission_pil']
-                if(submission_obj.permission_pil == 'ditolak'):
+                
+                if submission_obj.permission_pil == 'ditolak':
                     submission_obj.reason_rejected = data['reason_rejected']
-                    # if(submission_obj.reason_rejected != None and submission_obj.conditional_reasons != None):
-                        # submission_obj.conditional_reasons = data['conditional_reasons']
-                elif(submission_obj.permission_pil == 'ditangguhkan'):
-                    if(submission_obj.suspended_start != None and submission_obj.suspended_end != None):
+                elif submission_obj.permission_pil == 'ditangguhkan':
+                    if submission_obj.suspended_start is not None and submission_obj.suspended_end is not None:
                         submission_obj.suspended_start = data['suspended_start']
                         submission_obj.suspended_end = data['suspended_end']
-                elif(submission_obj.permission_pil == 'disetujui'):
-                    if(submission_obj.status_submission == False):
-                        if(submission_obj.permission_type == 'lembur'):
+                elif submission_obj.permission_pil == 'disetujui':
+                    if submission_obj.status_submission is False:
+                        if submission_obj.permission_type == 'lembur':
                             start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
                             new_presen = PresenceEmployee.objects.create(employee=employees, working_date=start_date,
-                                                            lembur_end=int(data['end_hour']), lembur_start=int(data['from_hour'])
-                                                            )
+                                                                        lembur_end=int(data['end_hour']),
+                                                                        lembur_start=int(data['from_hour'])
+                                                                        )
                             new_presen.save()
-                        elif(submission_obj.permission_type == 'cuti'):
+                        elif submission_obj.permission_type == 'cuti':
                             start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
-                            end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
-                            submiss_object = CalendarCutiSubmission.objects.create(employee=employees, 
-                                permission_type=data['permission_type'], reason=data['reason'],
-                                start=start_date , end=end_date)
+                            end_date_var = datetime.strptime(data['end_date'], '%Y-%m-%d')
+                            now = datetime.now()
+                            end_date = end_date_var.replace(hour=now.hour, minute=now.minute, second=now.second)
+                            print(end_date)
+                            submiss_object = CalendarCutiSubmission.objects.create(employee=employees,
+                                                                                permission_type=data['permission_type'],
+                                                                                reason=data['reason'],
+                                                                                start=start_date, end=end_date
+                                                                                )
                             
                             duration = (end_date - start_date).days + 1
                             working_dates = [start_date + timedelta(days=i) for i in range(duration)]
                             for working_date in working_dates:
-                                PresenceEmployee.objects.create(employee=employees, working_date=working_date, ket=submission_obj.permission_type)
-                            # PresenceEmployee.objects.create(employee=employees, working_date=datetime.strptime(data['start_date'], '%Y-%m-%d'),
-                            #                            end_from=None, start_from=None, ket=submission_obj.permission_type
-                            #                            )
+                                PresenceEmployee.objects.create(employee=employees, working_date=working_date,
+                                                                ket=submission_obj.permission_type
+                                                            )
+                            
                             users_obj = User.objects.get(id=data['employee'])
                             users_obj.sisa_cuti = int(users_obj.sisa_cuti) - int(submission_obj.jumlah_hari)
                             users_obj.save()
