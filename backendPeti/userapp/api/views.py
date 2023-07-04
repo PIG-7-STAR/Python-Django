@@ -216,7 +216,7 @@ class EmployeeContractEnd(APIView):
             current_month = datetime.datetime.now().month
             next_month = (current_month + 1) % 12
             users = User.objects.filter(
-                Q(contract_end__month=current_month) | Q(contract_end__month=next_month),
+                Q(contract_end__month=current_month) & Q(contract_end__month=next_month),
                 contract_end__year=year
             )
             serializer = UserContractSerializers(users, many=True)
