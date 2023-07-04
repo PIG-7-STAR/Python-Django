@@ -211,9 +211,14 @@ class EmployeeBirth(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class EmployeeContractEnd(APIView):
-    def get(self, request, month, year):
+    def get(self, request, year):
         try:
-            users = User.objects.filter(contract_end__month=month, contract_end__year=year)
+            current_month = datetime.datetime.now().month
+            next_month = (current_month + 1) % 12
+            users = User.objects.filter(
+                Q(contract_end__month=current_month) | Q(contract_end__month=next_month),
+                contract_end__year=year
+            )
             serializer = UserContractSerializers(users, many=True)
             return Response(serializer.data)
         except User.DoesNotExist:

@@ -53,7 +53,7 @@ urlpatterns = [
     path('api/dashboard/employee-permission/', SubmissionIzin.as_view()),
     path('api/employee/best_of/', UserWorkHourAPIView.as_view()),
     path('api/dashboard/employee-birth/<int:month>/', EmployeeBirth.as_view()),
-    path('api/dashboard/contract-end/<int:month>/<int:year>/', EmployeeContractEnd.as_view()),
+    path('api/dashboard/contract-end/<int:year>/', EmployeeContractEnd.as_view()),
     path('api/dashboard/statistik-presence/<int:year>/', StatistikPresenceInMonth.as_view()),
     path('api/dashboard/statistik-submission/<int:year>/', StatistikSubmissionEmployeeInMonth.as_view()),
     path('api/dashboard/employee-statistik/<int:month>/<int:year>/', PresenceStatistikUser.as_view()),
