@@ -340,12 +340,11 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                 response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
             else:
                 response_message = Response({"message" : "Hanya HRD yang diperbolehkan menghapus"}, status=status.HTTP_400_BAD_REQUEST)  
-        elif(pengajuan.permission_pil != 'disetujui'):
+        else:
             if(logedin_user.roles == "hrd"):
                 pengajuan.delete()
                 response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
-        else:
-            if(logedin_user.pk == pengajuan.employee.pk):
+            elif(logedin_user.pk == pengajuan.employee.pk):
                 if(pengajuan.permission_pil == None):
                     pengajuan.delete()
                     response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
