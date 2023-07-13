@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework import status
@@ -5,6 +6,7 @@ from rest_framework.response import Response
 from submisssion.api.serializer import SubmissionSerializer
 
 from submisssion.models import Submission
+from userapp.utils.modelfunction import create_calendar, delete_calendar
 
 from .serializer import NotesSerializer
 from noteHR.models import NotesApp
@@ -157,18 +159,53 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         note_object = self.get_object()
         data = request.data
 
-        employee = User.objects.get(id=data["employee"])
-
+        employee = User.objects.get(id=data.get("employee"))
+        print(note_object.type_notes)
+        print(data.get('type_notes'))
         note_object.employee = employee
-        note_object.notes = data['notes']
-        note_object.type_notes = data['type_notes']
-        note_object.date_note = data['date_note']
+        note_object.notes = data.get('notes')
+       
+        if note_object.type_notes != data.get('type_notes'):
+            if data.get('type_notes') != 'masuk':
+                presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+                presence_emp.ket = data.get('type_notes')
+                if note_object.type_notes == 'cuti':
+                    print("hi")
+                    employee.sisa_cuti += 1
+                    employee.save()
+                    # delete_calendar(employee_id=data.get('employee'), type=data.get('type_notes'), reason_emp=data.get('notes'), start_dates=data.get('date_note'))
+                elif data.get('type_notes') == 'cuti':
+                    # create_calendar(employee_id=data.get('employee'), type=data.get('type_notes'), reason_emp=data.get('notes'), start_dates=data.get('date_note'), end_dates=data.get('date_note'))
+                    employee.sisa_cuti -= 1
+                    employee.save()
+            else:
+                presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+                presence_emp.ket = data.get('type_notes')
+                presence_emp.from_hour = 900
+                presence_emp.end_from = 1700
+            presence_emp.save()
+
+           
+        # if presence_emp:
+        #     if data.get('type_notes') != 'cuti':
+        #         presence_emp.ket = data.get('type_notes')
+
+        #         if note_object.type_notes == 'cuti':
+        #             employee.sisa_cuti += 1
+        #             employee.save()
+        #     else:
+        #         presence_emp.ket = data.get('type_notes')
+        #         employee.sisa_cuti -= 1
+        #         employee.save()
+        note_object.type_notes = data.get('type_notes')
+        note_object.date_note = data.get('date_note')
 
         note_object.save()
 
-        serializers = NotesSerializer(note_object)
+        serializer = NotesSerializer(note_object)
 
-        return Response(serializers.data)
+        return Response(serializer.data)
+
 
     def destroy(self, request, *args, **kwargs):
         # logedin_user = request.user.roles
@@ -225,22 +262,27 @@ def get_cuti(request, year, emp_id):
 
 @api_view(['POST'])
 def post_delete_notes(request):
-
     notes_data = request.data
-    empl = notes_data.get("employee")
-    datenote = notes_data.get("date_note")
-    noted = notes_data.get("notes")
-    type_nt = notes_data.get("type_notes")
+    employee_id = notes_data.get("employee")
+    date_note = notes_data.get("date_note")
+    notes = notes_data.get("notes")
+    type_notes = notes_data.get("type_notes")
 
-    notesed = NotesApp.objects.filter(employee=empl, date_note=datenote, notes=noted, type_notes=type_nt)
-    if(type_nt != 'catatan'):
-        presencess = PresenceEmployee.objects.filter(employee=empl, working_date=datenote, ket=noted)
-        if presencess.exists():
+    user = get_object_or_404(User, id=employee_id)
+
+    notesed = NotesApp.objects.filter(employee=user, date_note=date_note, notes=notes, type_notes=type_notes)
+
+    if type_notes != 'catatan':
+        if type_notes != 'masuk':
+            presencess = PresenceEmployee.objects.filter(employee=user, working_date=date_note, ket=type_notes)
+            if type_notes == 'cuti':
+                user.sisa_cuti += 1
+                user.save()
             presencess.delete()
-            print('berhasil')
         else:
-            print("Tidak ada objek PresenceEmployee")
-    notesed.delete()
-    response_message={"message" : "Notes has been deleted"}
+            presencess = PresenceEmployee.objects.filter(employee=user, working_date=date_note, from_hour=900, end_hour=1700)
+            presencess.delete()
 
+    notesed.delete()
+    response_message = {"message": "Notes has been deleted"}
     return Response(response_message)
