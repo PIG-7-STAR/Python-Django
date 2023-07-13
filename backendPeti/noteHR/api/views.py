@@ -168,6 +168,10 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         if note_object.type_notes != data.get('type_notes'):
             if data.get('type_notes') != 'masuk':
                 presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+                if note_object.type_notes == 'masuk':
+                    presence_emp.delete()
+                    PresenceEmployee.objects.create(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+                presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
                 presence_emp.ket = data.get('type_notes')
                 if note_object.type_notes == 'cuti':
                     print("hi")
@@ -179,9 +183,14 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
                     employee.save()
                     create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
             else:
+                if note_object.type_notes == 'cuti':
+                    print("hi")
+                    employee.sisa_cuti += 1
+                    employee.save()
+                    create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
                 presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
                 presence_emp.ket = data.get('type_notes')
-                presence_emp.from_hour = 900
+                presence_emp.start_from = 900
                 presence_emp.end_from = 1700
             presence_emp.save()
 
@@ -274,13 +283,13 @@ def post_delete_notes(request):
 
     if type_notes != 'catatan':
         if type_notes != 'masuk':
-            presencess = PresenceEmployee.objects.filter(employee=user, working_date=date_note, ket=type_notes)
+            presencess = PresenceEmployee.objects.get(employee=user, working_date=date_note, ket=type_notes)
             if type_notes == 'cuti':
                 user.sisa_cuti += 1
                 user.save()
             presencess.delete()
         else:
-            presencess = PresenceEmployee.objects.filter(employee=user, working_date=date_note, from_hour=900, end_hour=1700)
+            presencess = PresenceEmployee.objects.get(employee=user, working_date=date_note, start_from=900, end_from=1700)
             presencess.delete()
 
     notesed.delete()
