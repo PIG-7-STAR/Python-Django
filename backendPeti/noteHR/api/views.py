@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from submisssion.api.serializer import SubmissionSerializer
 
 from submisssion.models import Submission
-from userapp.utils.modelfunction import create_calendar, delete_calendar
+from userapp.utils.modelfunction import create_calendar, create_log, delete_calendar
 
 from .serializer import NotesSerializer
 from noteHR.models import NotesApp
@@ -173,11 +173,11 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
                     print("hi")
                     employee.sisa_cuti += 1
                     employee.save()
-                    # delete_calendar(employee_id=data.get('employee'), type=data.get('type_notes'), reason_emp=data.get('notes'), start_dates=data.get('date_note'))
+                    create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
                 elif data.get('type_notes') == 'cuti':
-                    # create_calendar(employee_id=data.get('employee'), type=data.get('type_notes'), reason_emp=data.get('notes'), start_dates=data.get('date_note'), end_dates=data.get('date_note'))
                     employee.sisa_cuti -= 1
                     employee.save()
+                    create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
             else:
                 presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
                 presence_emp.ket = data.get('type_notes')
