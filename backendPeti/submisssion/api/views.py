@@ -11,6 +11,7 @@ from submisssion.utils.api_notification import sendNotificationEmployee, sendNot
 from django.db.models import Q, Sum
 
 from userapp.models import User
+from userapp.utils.modelfunction import create_log
 from .serializer import SubmissionEmployeeSerializer, SubmissionSerializer, SubmissionCutiCalendarSerializer
 from submisssion.models import Submission, CalendarCutiSubmission
 from datetime import datetime, timedelta
@@ -313,6 +314,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                             users_obj.sisa_cuti = int(users_obj.sisa_cuti) - int(submission_obj.jumlah_hari)
                             users_obj.save()
                             submiss_object.save()
+                            create_log(message=f"Pengajuan Cuti {submission_obj.employee.name} disetujui oleh {request.user.roles}, cuti berkurang {submission_obj.jumlah_hari}")
 
             submission_obj.save()
             serializers = SubmissionSerializer(submission_obj)
@@ -336,13 +338,16 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                     users_obj = User.objects.get(id=pengajuan.employee.pk)
                     users_obj.sisa_cuti = int(users_obj.sisa_cuti) + int(pengajuan.jumlah_hari)
                     users_obj.save()
+                    create_log(message=f"Pengajuan Cuti {pengajuan.employee.name} dihapus oleh {logedin_user.roles}, cuti bertambah {pengajuan.jumlah_hari}")
                 pengajuan.delete()
+                create_log(message=f"Pengajuan {pengajuan.employee.name} dihapus oleh {logedin_user.roles}")
                 response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
             else:
                 response_message = Response({"message" : "Hanya HRD yang diperbolehkan menghapus"}, status=status.HTTP_400_BAD_REQUEST)  
         else:
             if(logedin_user.roles == "hrd"):
                 pengajuan.delete()
+                create_log(message=f"Pengajuan {pengajuan.employee.name} dihapus oleh {logedin_user.roles}")
                 response_message = Response({"message" : "Pengajuan berhasil dihapus"}, status=status.HTTP_200_OK)  
             elif(logedin_user.pk == pengajuan.employee.pk):
                 if(pengajuan.permission_pil == None):
@@ -351,6 +356,7 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                 else:
                     response_message = Response({"message" : "Tidak dapat menghapus pengajuan karena sudah diberikan perizinan oleh atasan/hrd"}, status=status.HTTP_400_BAD_REQUEST)  
             else:
+                create_log(message="Tidak dapat dihapus, hanya yang bersangkutan atau atasan dari perusahaan yang dapat menghapusnya")
                 response_message = Response({"message" : "Tidak dapat dihapus, hanya yang bersangkutan atau atasan dari perusahaan yang dapat menghapusnya"}, status=status.HTTP_400_BAD_REQUEST)  
 
         return response_message

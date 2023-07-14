@@ -88,7 +88,8 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
             if tahun:
                 querySet=querySet.filter(tahun=tahun)
         else:
-            querySet = NotesApp.objects.all().filter(employee=logged_user.pk, type_notes='cuti').order_by('-id')
+            # querySet = NotesApp.objects.all().filter(employee=logged_user.pk, type_notes='cuti').order_by('-id')
+            querySet = NotesApp.objects.filter(employee=logged_user.pk).exclude(type_notes__in=['masuk', 'catatan']).order_by('-id')
 
         # serializer = NotesSerializer(querySet, many=True)
 
@@ -164,37 +165,39 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         print(data.get('type_notes'))
         note_object.employee = employee
         note_object.notes = data.get('notes')
+        date = datetime.strptime(data.get('date_note'), '%Y-%m-%d').date()
        
-        if note_object.type_notes != data.get('type_notes'):
-            if data.get('type_notes') != 'masuk':
-                presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
-                if note_object.type_notes == 'masuk':
-                    presence_emp.delete()
-                    PresenceEmployee.objects.create(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
-                presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
-                presence_emp.ket = data.get('type_notes')
-                if note_object.type_notes == 'cuti':
-                    print("hi")
-                    employee.sisa_cuti += 1
-                    employee.save()
-                    create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
-                elif data.get('type_notes') == 'cuti':
-                    employee.sisa_cuti -= 1
-                    employee.save()
-                    create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
-            else:
-                if note_object.type_notes == 'cuti':
-                    print("hi")
-                    employee.sisa_cuti += 1
-                    employee.save()
-                    create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
-                presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
-                presence_emp.ket = data.get('type_notes')
-                presence_emp.start_from = 900
-                presence_emp.end_from = 1700
-            presence_emp.save()
-
-           
+        # if note_object.type_notes != data.get('type_notes'):
+        if data.get('type_notes') != 'masuk':
+            presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+            if note_object.type_notes == 'masuk':
+                presence_emp.delete()
+                PresenceEmployee.objects.create(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+            presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+            presence_emp.ket = data.get('type_notes')
+            presence_emp.working_date = date
+            if note_object.type_notes == 'cuti':
+                print("hi")
+                employee.sisa_cuti += 1
+                employee.save()
+                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
+            elif data.get('type_notes') == 'cuti':
+                employee.sisa_cuti -= 1
+                employee.save()
+                create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
+        else:
+            if note_object.type_notes == 'cuti':
+                print("hi")
+                employee.sisa_cuti += 1
+                employee.save()
+                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
+            presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
+            presence_emp.ket = data.get('type_notes')
+            presence_emp.start_from = 900
+            presence_emp.end_from = 1700
+            presence_emp.working_date=date
+        presence_emp.save()
+        
         # if presence_emp:
         #     if data.get('type_notes') != 'cuti':
         #         presence_emp.ket = data.get('type_notes')
@@ -206,6 +209,7 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
         #         presence_emp.ket = data.get('type_notes')
         #         employee.sisa_cuti -= 1
         #         employee.save()
+      
         note_object.type_notes = data.get('type_notes')
         note_object.date_note = data.get('date_note')
 
