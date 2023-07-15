@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from calendarDash.models import CalendarDashHRD
 from presenceEmployee.models import PresenceEmployee
 from submisssion.api.filters import filterhr, filteruser
 from submisssion.utils.api_notification import sendNotificationEmployee, sendNotificationHR
@@ -306,9 +307,16 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
                             duration = (end_date - start_date).days + 1
                             working_dates = [start_date + timedelta(days=i) for i in range(duration)]
                             for working_date in working_dates:
-                                PresenceEmployee.objects.create(employee=employees, working_date=working_date,
-                                                                ket=submission_obj.permission_type
-                                                            )
+                                if not CalendarDashHRD.objects.filter(date=working_date).exists():
+                                    PresenceEmployee.objects.create(
+                                        employee=employees,
+                                        working_date=working_date,
+                                        ket=submission_obj.permission_type
+                                    )
+                            # for working_date in working_dates:
+                            #     PresenceEmployee.objects.create(employee=employees, working_date=working_date,
+                            #                                     ket=submission_obj.permission_type
+                            #                                 )
                             
                             users_obj = User.objects.get(id=data['employee'])
                             users_obj.sisa_cuti = int(users_obj.sisa_cuti) - int(submission_obj.jumlah_hari)
