@@ -179,16 +179,16 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
             if note_object.type_notes == 'cuti':
                 employee.sisa_cuti += 1
                 employee.save()
-                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}")
+                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}", action="update")
             elif data.get('type_notes') == 'cuti':
                 employee.sisa_cuti -= 1
                 employee.save()
-                create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}")
+                create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}", action="update")
         else:
             if note_object.type_notes == 'cuti':
                 employee.sisa_cuti += 1
                 employee.save()
-                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}")
+                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}", action="update")
             presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
             presence_emp.ket = data.get('type_notes')
             presence_emp.start_from = 900
@@ -289,6 +289,7 @@ def post_delete_notes(request):
             if type_notes == 'cuti':
                 user.sisa_cuti += 1
                 user.save()
+                create_log(action="delete", message=f"notes dengan type {type_notes} di delete oleh {request.user.roles}, cuti user {user.name} bertambah 1")
             presencess.delete()
         else:
             presencess = PresenceEmployee.objects.get(employee=user, working_date=date_note, start_from=900, end_from=1700)
