@@ -98,8 +98,9 @@ class UserDivision(models.Model):
         return self.division
     
 class Log(models.Model):
-    timestamp = models.DateTimeField(auto_now_add=True)
     message = models.TextField()
+    action = models.CharField(max_length=255, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self):  
         return self.message + ' - '+ str(self.timestamp)

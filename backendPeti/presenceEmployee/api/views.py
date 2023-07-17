@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from presenceEmployee.models import PresenceEmployee
+from userapp.utils.modelfunction import create_log
 from .serializers import PresenceEmployeeSerializers
 from django.db.models import Count, Q, Sum
 from userapp.models import User
@@ -308,27 +309,7 @@ class StatistikSubmissionEmployeeInMonth(APIView):
             presence_data = PresenceEmployee.objects.all().filter(working_date__year=year)
         else:
             presence_data = PresenceEmployee.objects.all().filter(working_date__year=year, employee=user_log.pk)
-        
-        # if user_log.roles == 'hrd':
-        #     result = {
-        #         month_abbr: {
-        #                 "masuk": PresenceEmployee.objects.filter(working_date__year=year, working_date__month=month_num, working_hour__isnull=False).count(),
-        #                 "tidak masuk": 0,
-        #                 "sakit": 0,
-        #                 "izin": 0,
-        #                 "cuti": 0
-        #             } for month_num, month_abbr in enumerate(calendar.month_abbr[1:], start=1)
-        #         }
-        # else:
-        #     result = {
-        #         month_abbr: {
-        #                 "masuk": PresenceEmployee.objects.filter(employee=user_log.pk, working_date__year=year, working_date__month=month_num, working_hour__isnull=False).count(),
-        #                 "tidak masuk": 0,
-        #                 "sakit": 0,
-        #                 "izin": 0,
-        #                 "cuti": 0
-        #             } for month_num, month_abbr in enumerate(calendar.month_abbr[1:], start=1)
-        #         }
+    
         result = {
             month_abbr: {
                 "tidak masuk": 0,
@@ -344,5 +325,5 @@ class StatistikSubmissionEmployeeInMonth(APIView):
             
             if ket in result[month]:
                 result[month][ket] += 1
-        
+        create_log(action="get", message=f"logged {user_log.name}")
         return Response(result)

@@ -177,20 +177,18 @@ class NotesAPIVIEWID(viewsets.ModelViewSet):
             presence_emp.ket = data.get('type_notes')
             presence_emp.working_date = date
             if note_object.type_notes == 'cuti':
-                print("hi")
                 employee.sisa_cuti += 1
                 employee.save()
-                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
+                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}")
             elif data.get('type_notes') == 'cuti':
                 employee.sisa_cuti -= 1
                 employee.save()
-                create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
+                create_log(message=f"cuti berkurang 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}")
         else:
             if note_object.type_notes == 'cuti':
-                print("hi")
                 employee.sisa_cuti += 1
                 employee.save()
-                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah ke {data.get('type_notes')} dari {note_object.type_notes}")
+                create_log(message=f"cuti bertambah 1 untuk user {employee.name} karena {request.user.roles} mengubah tipe catatan menjadi {data.get('type_notes')} dari {note_object.type_notes}")
             presence_emp = PresenceEmployee.objects.get(employee=employee, working_date=note_object.date_note, ket=note_object.type_notes)
             presence_emp.ket = data.get('type_notes')
             presence_emp.start_from = 900

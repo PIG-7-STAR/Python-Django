@@ -5,8 +5,8 @@ from userapp.models import Log, User
 
 def create_calendar(employee_id, type, reason_emp, start_dates, end_dates):
     employees = User.objects.get(id=employee_id)
-    start_date = datetime.strptime(start_dates, '%Y-%m-%d')
-    end_date = datetime.strptime(end_dates, '%Y-%m-%d')
+    start_date = datetime.strptime(start_dates, '%Y-%m-%d').date()
+    end_date = datetime.strptime(end_dates, '%Y-%m-%d').date()
 
     calendar = CalendarCutiSubmission.objects.filter(
         employee=employees,
@@ -24,7 +24,7 @@ def create_calendar(employee_id, type, reason_emp, start_dates, end_dates):
             start=start_date,
             end=end_date
         )
-        create_log(f"membuat calendar cuti untuk user {employees.name}")
+        create_log(f"membuat calendar cuti untuk user {employees.name}", action="post")
 
 
 def delete_calendar(employee_id, type, reason_emp, start_dates):
@@ -42,7 +42,7 @@ def delete_calendar(employee_id, type, reason_emp, start_dates):
     if calendar.exists():
         calendar.delete()
     else:
-        create_log("Calendar cuti tidak ditemukan.")
+        create_log("Calendar cuti tidak ditemukan.", action='delete')
 
-def create_log(message):
-    Log.objects.create(message=message)
+def create_log(message, action):
+    Log.objects.create(message=message, action=action)
