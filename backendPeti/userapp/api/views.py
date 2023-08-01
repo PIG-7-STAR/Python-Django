@@ -204,7 +204,7 @@ class UserSearch(APIView):
 class EmployeeBirth(APIView):
     def get(self, request, month):
         try:
-            users = User.objects.filter(birth_date__month=month)
+            users = User.objects.filter(birth_date__month=month).order_by('birth_date__day')
             serializer = UserBirthdaySerializers(users, many=True)
             return Response(serializer.data)
         except User.DoesNotExist:

@@ -210,8 +210,22 @@ class SubmissionAPIViewID(viewsets.ModelViewSet):
             if(reason != '' and  juml != ''):
                 if(edrd >= start_dat and rdrd >= edrd and rdrd >= start_dat ):
                     validator_submiss = int(employee_sc)-int(juml)
-                    if(validator_submiss < 0 and permiss != 'sakit'):
-                        ressPon = Response({"message" : "Sisa Cuti Anda tidak mencukupi"}, status=status.HTTP_400_BAD_REQUEST)  
+                    if(permiss != 'sakit'):
+                        if(validator_submiss < 0 and request.user.status_employee == 'full time'):
+                            ressPon = Response({"message" : "Sisa Cuti Anda tidak mencukupi"}, status=status.HTTP_400_BAD_REQUEST)  
+                        else:
+                            new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
+                                                                reason=pengajuan_data['reason'],  jumlah_hari=pengajuan_data['jumlah_hari'], 
+                                                                start_date=pengajuan_data['start_date'], end_date=pengajuan_data['end_date'], return_date=pengajuan_data['return_date'],
+                                )
+                            serializer = SubmissionSerializer(new_pengajuan)
+                            response_message={"message" : "Berhasil Membuat Pengajuan",
+                                            "data": serializer.data, 
+                                            'res' : responses.status_code
+                            }
+                        
+                            new_pengajuan.save()
+                            ressPon = Response(response_message)        
                     else:
                         new_pengajuan = Submission.objects.create(employee=User.objects.get(id=employee_id), permission_type=pengajuan_data['permission_type'], 
                                                               reason=pengajuan_data['reason'],  jumlah_hari=pengajuan_data['jumlah_hari'], 
