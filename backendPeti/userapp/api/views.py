@@ -187,6 +187,7 @@ class UserSearch(APIView):
         active = self.request.query_params.get('active', None)
         roles = self.request.query_params.get('roles', None)
         division = self.request.query_params.get('division', None)
+        active = self.request.query_params.get('active', None)
 
         if name:
             querySet=querySet.filter(name__icontains=name)
@@ -196,6 +197,8 @@ class UserSearch(APIView):
             querySet=querySet.filter(roles__contains=roles)
         if division:
             querySet=querySet.filter(division__contains=division)
+        if active:
+            querySet=querySet.filter(is_active=active)
 
         serializer = UserDetailsSerializer(querySet, many=True)
 
