@@ -257,7 +257,6 @@ class NotesAPIID(viewsets.ModelViewSet):
         return Response(serializer.data)
     
 
-
 @api_view(['GET'])
 def get_cuti(request, year, emp_id):
     notes = NotesApp.objects.filter(employee=emp_id, type_notes='cuti', tahun=year)

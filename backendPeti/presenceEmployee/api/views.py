@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from calendarDash.models import CalendarDashHRD
 from presenceEmployee.models import PresenceEmployee
 from userapp.utils.modelfunction import create_log
 from .serializers import PresenceEmployeeSerializers
@@ -9,10 +10,8 @@ from django.db.models import Count, Q, Sum
 from userapp.models import User
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models.functions import TruncMonth
-from datetime import datetime
+from datetime import timedelta, datetime
 import calendar
-from collections import defaultdict
-
 
 class PresenceAPIView(APIView):
     serializer_class = PresenceEmployeeSerializers
@@ -315,7 +314,8 @@ class StatistikSubmissionEmployeeInMonth(APIView):
                 "tidak masuk": 0,
                 "sakit": 0,
                 "izin": 0,
-                "cuti": 0
+                "cuti": 0,
+                "wfh": 0
             } for month_abbr in calendar.month_abbr[1:]
         }
         
@@ -327,3 +327,48 @@ class StatistikSubmissionEmployeeInMonth(APIView):
                 result[month][ket] += 1
         create_log(action="get", message=f"logged {user_log.name}")
         return Response(result)
+
+class PresenceWFHGenerate(APIView):
+    def post(self, request):
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        user_id = request.data.get('user_id')
+        user = self.request.user
+
+        # Validasi bahwa start_date dan end_date tidak boleh kosong
+        if not start_date or not end_date:
+            return Response({'message': 'Start date dan end date harus diisi'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.roles == 'hrd':
+            try:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            except ValueError:
+                return Response({'message': 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
+
+            current_date = start_date
+            while current_date <= end_date:
+                # Periksa apakah tanggal sudah ada di model CalendarDashHRD
+                if not CalendarDashHRD.objects.filter(date=current_date.date()).exists():
+                    # Periksa apakah kombinasi employee, working_date, dan ket sudah ada sebelumnya
+                    if not PresenceEmployee.objects.filter(
+                        employee_id=user_id,
+                        working_date=current_date.date(),
+                        ket='wfh'
+                    ).exists():
+                        PresenceEmployee.objects.create(
+                            employee_id=user_id,
+                            ket='wfh',
+                            working_date=current_date.date()
+                        )
+                    # Jika data yang sama sudah ada, lanjutkan ke tanggal berikutnya
+                    else:
+                        current_date += timedelta(days=1)
+                else:
+                    current_date += timedelta(days=1)
+
+            results = Response({'message': 'Presensi berhasil di-generate'}, status=status.HTTP_201_CREATED)
+        else:
+            results = Response({'message': 'Anda tidak memiliki hak akses untuk generate presensi'}, status=status.HTTP_403_FORBIDDEN)
+
+        return results

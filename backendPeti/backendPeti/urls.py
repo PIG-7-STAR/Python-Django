@@ -5,7 +5,7 @@ from userapp.api import views
 from attendanceEmployee.api.views import AttendanceAPISearch, TopAttendanceAPIView, AttendanceAPICompare, AttendanceAPIAnalisis
 from userapp.api.views import EmployeeBirth, UserSearch, UserSearchView, UserPasswordReset, ResetPassword, UserSearchContract, UserWorkHourAPIView, EmployeeContractEnd, ChangePasswordAPIView
 from calendarDash.api.views import WeekTotals, post_delete_calendar
-from presenceEmployee.api.views import PresenceAPIAnalisis, PresenceAPICompare, PresenceSearch, TopPresenceAPIView, PresenceStatistikUser, StatistikPresenceInMonth, StatistikSubmissionEmployeeInMonth
+from presenceEmployee.api.views import PresenceAPIAnalisis, PresenceAPICompare, PresenceSearch, TopPresenceAPIView, PresenceStatistikUser, StatistikPresenceInMonth, StatistikSubmissionEmployeeInMonth,PresenceWFHGenerate
 from submisssion.api.views import    CalendarSubmissionView, SubmissionIzin, send_notification_api
 from noteHR.api.views import post_delete_notes
 
@@ -13,8 +13,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api-auth/', include('rest_framework.urls')),
-    path('rest-auth/', include('rest_auth.urls')),
-    path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    # path('rest-auth/', include('rest_auth.urls')),
+    # path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('api/reset-password/', UserPasswordReset.as_view(), name='reset-password'),
     path('api/reset-password/<str:encoded_pk>/<str:token>/',ResetPassword.as_view(), name='reset-password'),
     path('', include('loginUser.api.urls')),
@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/presence/employee/compare', PresenceAPICompare.as_view()),
     path('api/presence/employee/analysis/', PresenceAPIAnalisis.as_view()),
     path('api/presence/total-day/', TopPresenceAPIView.as_view()),
+    path('api/presence/generate-wfh/', PresenceWFHGenerate.as_view()),
 
     path('api/note/', include('noteHR.api.urls')),
     path('api/note/delete/', post_delete_notes),
