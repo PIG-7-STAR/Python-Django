@@ -358,12 +358,13 @@ class PresenceWFHGenerate(APIView):
                         employee_id=user_id,
                         working_date=current_date.date(),
                     ).exists():
-                        PresenceEmployee.objects.create(
-                            employee_id=user_id,
-                            ket='wfh',
-                            working_date=current_date.date()
-                        )
-                        create_log(action="create", message=f"Presensi {employee.name} wfh tanggal {current_date.date()} ubah oleh {request.user.name}")
+                        if current_date.weekday() < 5: 
+                            PresenceEmployee.objects.create(
+                                employee_id=user_id,
+                                ket='wfh',
+                                working_date=current_date.date()
+                            )
+                            create_log(action="create", message=f"Presensi {employee.name} wfh tanggal {current_date.date()} ubah oleh {request.user.name}")
                     else:
                         current_date += timedelta(days=1)
                 else:
