@@ -76,34 +76,34 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                                                                 end_from=int(presen["end_from"]), start_from=int(presen["start_from"]), lembur_start=int(presen["lembur_start"]), 
                                                                 lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
                                                                 )
+                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.nama}")
                     serializer = PresenceEmployeeSerializers(new_presen)
                     response_message={"message" : "Berhasil membuat data",
                                         "data": serializer.data
                         }
                     new_presen.save()
-                    create_log(action="create", message=f"Presensi {serializer.data.id} dibuat oleh {request.user.nama}")
                     res = Response(response_message)
                 elif(strfrom != None):
                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
                                                                 end_from=int(presen["end_from"]), start_from=int(presen["start_from"]),  ket=presen["ket"]
                                                                 )
+                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.nama}")
                     serializer = PresenceEmployeeSerializers(new_presen)
                     response_message={"message" : "Berhasil membuat data",
                                         "data": serializer.data
                         }
                     new_presen.save()
-                    create_log(action="create", message=f"Presensi {serializer.data.id} dibuat oleh {request.user.nama}")
                     res = Response(response_message)
                 elif(lmbrstr != None):
                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
                                                                 lembur_start=int(presen["lembur_start"]), lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
                                                                 )
+                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.nama}")
                     serializer = PresenceEmployeeSerializers(new_presen)
                     response_message={"message" : "Berhasil membuat data",
                                         "data": serializer.data
                         }
                     new_presen.save()
-                    create_log(action="create", message=f"Presensi {serializer.data.id} dibuat oleh {request.user.nama}")
                     res = Response(response_message)
                 else:
                     res = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)
@@ -137,7 +137,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                 print("hi")
                 print(presence_obj.lembur_end)
                 presence_obj.save()
-                create_log(action="create", message=f"Presensi {data['id']} ubah oleh {request.user.nama}")
+                create_log(action="create", message=f"Presensi {employee.name} tanggal {date} ubah oleh {request.user.nama}")
                 res = Response({'message' : 'Data berhasil disimpan'})
             else:
                 res = Response({'message' : 'Isikan data yang di perlukan'})
@@ -352,25 +352,21 @@ class PresenceWFHGenerate(APIView):
 
             current_date = start_date
             while current_date <= end_date:
-                # Periksa apakah tanggal sudah ada di model CalendarDashHRD
                 if not CalendarDashHRD.objects.filter(date=current_date.date()).exists():
-                    # Periksa apakah kombinasi employee, working_date, dan ket sudah ada sebelumnya
                     if not PresenceEmployee.objects.filter(
                         employee_id=user_id,
                         working_date=current_date.date(),
-                        ket='wfh'
                     ).exists():
                         PresenceEmployee.objects.create(
                             employee_id=user_id,
                             ket='wfh',
                             working_date=current_date.date()
                         )
-                    # Jika data yang sama sudah ada, lanjutkan ke tanggal berikutnya
+                        create_log(action="create", message=f"Presensi {User.objects.filter(id=user_id).name} wfh tanggal {current_date.date()} ubah oleh {request.user.nama}")
                     else:
                         current_date += timedelta(days=1)
                 else:
                     current_date += timedelta(days=1)
-
             results = Response({'message': 'Presensi berhasil di-generate'}, status=status.HTTP_201_CREATED)
         else:
             results = Response({'message': 'Anda tidak memiliki hak akses untuk generate presensi'}, status=status.HTTP_403_FORBIDDEN)
