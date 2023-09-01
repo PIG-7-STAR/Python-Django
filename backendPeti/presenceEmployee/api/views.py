@@ -81,6 +81,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                                         "data": serializer.data
                         }
                     new_presen.save()
+                    create_log(action="create", message=f"Presensi {serializer.data.id} dibuat oleh {request.user.nama}")
                     res = Response(response_message)
                 elif(strfrom != None):
                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
@@ -91,6 +92,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                                         "data": serializer.data
                         }
                     new_presen.save()
+                    create_log(action="create", message=f"Presensi {serializer.data.id} dibuat oleh {request.user.nama}")
                     res = Response(response_message)
                 elif(lmbrstr != None):
                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
@@ -101,6 +103,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                                         "data": serializer.data
                         }
                     new_presen.save()
+                    create_log(action="create", message=f"Presensi {serializer.data.id} dibuat oleh {request.user.nama}")
                     res = Response(response_message)
                 else:
                     res = Response({"message" : "Isi Semua data"}, status=status.HTTP_400_BAD_REQUEST)
@@ -134,6 +137,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                 print("hi")
                 print(presence_obj.lembur_end)
                 presence_obj.save()
+                create_log(action="create", message=f"Presensi {data['id']} ubah oleh {request.user.nama}")
                 res = Response({'message' : 'Data berhasil disimpan'})
             else:
                 res = Response({'message' : 'Isikan data yang di perlukan'})
