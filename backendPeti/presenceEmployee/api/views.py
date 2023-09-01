@@ -76,7 +76,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                                                                 end_from=int(presen["end_from"]), start_from=int(presen["start_from"]), lembur_start=int(presen["lembur_start"]), 
                                                                 lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
                                                                 )
-                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.nama}")
+                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.name}")
                     serializer = PresenceEmployeeSerializers(new_presen)
                     response_message={"message" : "Berhasil membuat data",
                                         "data": serializer.data
@@ -87,7 +87,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
                                                                 end_from=int(presen["end_from"]), start_from=int(presen["start_from"]),  ket=presen["ket"]
                                                                 )
-                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.nama}")
+                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.name}")
                     serializer = PresenceEmployeeSerializers(new_presen)
                     response_message={"message" : "Berhasil membuat data",
                                         "data": serializer.data
@@ -98,7 +98,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                     new_presen = PresenceEmployee.objects.create(employee=User.objects.get(id=presen["employee"]), working_date=date,
                                                                 lembur_start=int(presen["lembur_start"]), lembur_end=int(presen["lembur_end"]),  ket=presen["ket"]
                                                                 )
-                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.nama}")
+                    create_log(action="create", message=f"Presensi {employee.name} tanggal {date} dibuat oleh {request.user.name}")
                     serializer = PresenceEmployeeSerializers(new_presen)
                     response_message={"message" : "Berhasil membuat data",
                                         "data": serializer.data
@@ -137,7 +137,7 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
                 print("hi")
                 print(presence_obj.lembur_end)
                 presence_obj.save()
-                create_log(action="create", message=f"Presensi {employee.name} tanggal {date} ubah oleh {request.user.nama}")
+                create_log(action="create", message=f"Presensi {employee.name} tanggal {date} ubah oleh {request.user.name}")
                 res = Response({'message' : 'Data berhasil disimpan'})
             else:
                 res = Response({'message' : 'Isikan data yang di perlukan'})
@@ -363,7 +363,7 @@ class PresenceWFHGenerate(APIView):
                             ket='wfh',
                             working_date=current_date.date()
                         )
-                        create_log(action="create", message=f"Presensi {employee.name} wfh tanggal {current_date.date()} ubah oleh {request.user.nama}")
+                        create_log(action="create", message=f"Presensi {employee.name} wfh tanggal {current_date.date()} ubah oleh {request.user.name}")
                     else:
                         current_date += timedelta(days=1)
                 else:
