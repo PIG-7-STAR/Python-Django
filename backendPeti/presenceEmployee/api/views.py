@@ -338,6 +338,7 @@ class PresenceWFHGenerate(APIView):
         end_date = request.data.get('end_date')
         user_id = request.data.get('user_id')
         user = self.request.user
+        employee = User.objects.get(id=user_id)
 
         # Validasi bahwa start_date dan end_date tidak boleh kosong
         if not start_date or not end_date:
@@ -362,7 +363,7 @@ class PresenceWFHGenerate(APIView):
                             ket='wfh',
                             working_date=current_date.date()
                         )
-                        create_log(action="create", message=f"Presensi {User.objects.filter(id=user_id).name} wfh tanggal {current_date.date()} ubah oleh {request.user.nama}")
+                        create_log(action="create", message=f"Presensi {employee.name} wfh tanggal {current_date.date()} ubah oleh {request.user.nama}")
                     else:
                         current_date += timedelta(days=1)
                 else:
