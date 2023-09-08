@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from allauth.account.adapter import get_adapter
 from backendPeti import settings
-from .models import Log, User, UserRoles, UserDivision
+from .models import Log, User, UserNotes, UserRoles, UserDivision
 from allauth.account.utils import setup_user_email
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_decode
@@ -67,7 +67,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('pk', 'employee_code', 'username', 'email', 'first_name', 'last_name', 'is_active', 'name', 'division', 'employee_joined', 'employee_ended', 'birth_date',
-                    'sisa_cuti', 'roles', 'gender', 'religion', 'contract_start', 'contract_end', 'contract_time')
+                    'sisa_cuti', 'roles', 'gender', 'religion', 'status_employee', 'contract_start', 'contract_end', 'contract_time')
         # read_only_fields = ('email', )
 
 class UserContractSerializers(serializers.ModelSerializer):
@@ -95,6 +95,11 @@ class UserDivisionSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserDivision
         fields = '__all__' 
+
+class UserNotesSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = UserNotes
+        exclude = ['employee']
 
 class LogSerializer(serializers.ModelSerializer):
     class Meta:

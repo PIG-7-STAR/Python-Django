@@ -1,5 +1,5 @@
 from django.conf.urls import url, include
-from .views import UserApiView, UserViewId, UserRole, UserDivisionView, UserProfile
+from .views import UserApiView, UserNotesSpecific, UserViewId, UserRole, UserDivisionView, UserProfile
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -10,5 +10,6 @@ router.register('employees-division', UserDivisionView, basename='employees-divi
 urlpatterns = [
     url('users', UserApiView.as_view()),
     url('profile', UserProfile.as_view()),
+    url('notes', UserNotesSpecific.as_view()),
     url('', include(router.urls)),
 ]

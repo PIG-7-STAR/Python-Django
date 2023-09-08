@@ -1,3 +1,5 @@
+import uuid
+from django import utils
 from django.db import models
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
@@ -105,3 +107,13 @@ class Log(models.Model):
 
     def __str__(self):  
         return self.message + ' - '+ str(self.timestamp)
+
+class UserNotes(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    employee = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    notes = models.TextField(null=True, blank=True, default='')
+    created_at = models.DateTimeField(default=utils.timezone.now)
+    updated_at = models.DateTimeField(auto_now= True)
+
+    def __str__(self):
+        return self.employee.name

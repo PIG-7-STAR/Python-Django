@@ -6,8 +6,8 @@ from rest_framework import viewsets
 from django.db.models import Count, Q
 from calendarDash.models import CalendarDashHRD
 from presenceEmployee.models import PresenceEmployee
-from userapp.serializer import ChangePasswordSerializer, UserBirthdaySerializers, UserDetailsSerializer, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
-from userapp.models import User, UserRoles, UserDivision
+from userapp.serializer import ChangePasswordSerializer, UserBirthdaySerializers, UserDetailsSerializer, UserNotesSerializers, UserRolesSerializers, UserTotalDataIOSerializers, UserDivisionSerializers, ResetPasswordSerializer, EmailSerializer, UserContractSerializers
+from userapp.models import User, UserNotes, UserRoles, UserDivision
 from django.db.models import Sum
 from attendanceEmployee.models import AttendanceEmployee
 from rest_framework import generics
@@ -356,3 +356,32 @@ class ChangePasswordAPIView(APIView):
         user.save()
         
         return Response({'message': 'Password changed successfully.'}, status=status.HTTP_200_OK)
+    
+class UserNotesSpecific(APIView):
+
+    def get(self, request, *args, **kwargs):
+        employee = self.request.query_params.get('employee', None)
+        user = self.request.user
+        if user.roles == 'hrd':
+            if employee:
+                user_notes = UserNotes.objects.get_or_create(employee=User.objects.get(id=employee))
+                serializer = UserNotesSerializers(user_notes, many=True)
+
+                return Response(serializer.data)
+            else: 
+                return Response({'message': 'Masukan params employee.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Tidak dapat mengakses API ini.'}, status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request):
+        user = self.request.user
+        data = request.data
+        employee = data.get('employee')
+        notes_employee = data.get('notes_employee')
+        if user.roles == 'hrd':
+            note_emp = UserNotes.objects.get(employee=User.objects.get(id=employee))
+            note_emp.notes = notes_employee
+            note_emp.save()
+            return Response({'message': 'Berhasil mengedit notes.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Tidak dapat mengakses API ini.'}, status=status.HTTP_403_FORBIDDEN)

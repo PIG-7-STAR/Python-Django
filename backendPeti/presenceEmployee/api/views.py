@@ -133,12 +133,12 @@ class PresenceAPIViewID(viewsets.ModelViewSet):
 
                 if 'ket' in data:
                     presence_obj.ket = data.get('ket')
-
-                print("hi")
-                print(presence_obj.lembur_end)
-                presence_obj.save()
-                create_log(action="create", message=f"Presensi {employee.name} tanggal {date} ubah oleh {request.user.name}")
-                res = Response({'message' : 'Data berhasil disimpan'})
+                if presence_obj.is_lock == False:
+                    presence_obj.save()
+                    create_log(action="create", message=f"Presensi {employee.name} pada tanggal {date} diubah oleh {request.user.name}")
+                    res = Response({'message' : 'Data berhasil disimpan'})
+                else:
+                    res = Response({'message' : 'Data tidak dapat diubah, karena sudah dikunci oleh hrd'})
             else:
                 res = Response({'message' : 'Isikan data yang di perlukan'})
         else:
@@ -374,3 +374,27 @@ class PresenceWFHGenerate(APIView):
             results = Response({'message': 'Anda tidak memiliki hak akses untuk generate presensi'}, status=status.HTTP_403_FORBIDDEN)
 
         return results
+
+class PresenceLocked(APIView):
+    def post(self, request):
+        user = self.request.user
+        data = request.data
+        employee = data.get('employee')
+        month = data.get('month')
+        locked = int(data.get('locked'))
+        if user.roles == 'hrd':
+            presence = PresenceEmployee.objects.filter(employee=User.objects.get(id=employee), working_date__month=int(month))
+            if locked == 1:
+                for data in presence:
+                    data.is_lock = True
+                    data.save()
+                return Response({'message': 'Presensi Berhasil di lock'}, status=status.HTTP_201_CREATED)
+            elif locked == 0:
+                for data in presence:
+                    data.is_lock = False
+                    data.save()
+                return Response({'message': 'Presensi Berhasil di unlock'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'message': 'Masukan data yang benar pada value lock'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'Anda tidak memiliki hak akses untuk mengunci atau membuka kunci presensi'}, status=status.HTTP_403_FORBIDDEN)
